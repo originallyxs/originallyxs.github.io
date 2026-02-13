@@ -1,0 +1,233 @@
+<html lang="zh-CN">   
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">  
+  <title>网站更新中</title>  
+  <script src="https://cdn.tailwindcss.com"></script>  
+
+  <style>  
+    @font-face {  
+      font-family: 'CurrentFont';  
+      src: url('./fonts/currentFont.woff2') format('woff2');  
+      font-weight: normal;  
+      font-style: normal;  
+      font-display: swap;  
+    }  
+    @font-face {  
+      font-family: 'SerifFont';  
+      src: url('./fonts/serifFont.woff2') format('woff2');  
+      font-weight: normal;  
+      font-style: normal;  
+      font-display: swap;  
+    }  
+    @font-face {  
+      font-family: 'CodeFont';  
+      src: url('./fonts/codeFont.woff2') format('woff2');  
+      font-weight: normal;  
+      font-style: normal;  
+      font-display: swap;  
+    }  
+    @font-face {  
+      font-family: 'CodeFontItalic';  
+      src: url('./fonts/codeFontItalic.woff2') format('woff2');  
+      font-weight: normal;  
+      font-style: normal;  
+      font-display: swap;  
+    }  
+    * {  
+      font-family: 'CurrentFont', sans-serif !important;  
+    }  
+    html, body {  
+      overflow: hidden;  
+      touch-action: none;  
+      height: 100%;  
+      margin: 0;  
+      background-size: cover;  
+      background-position: center;  
+      background-attachment: fixed;  
+      min-height: 100vh;  
+    }  
+    .serif, blockquote,h1,h2,h3,h4,h5,h6 {  
+      font-family: 'SerifFont', serif !important;  
+    }  
+    code, pre {  
+      font-family: 'CodeFont', monospace !important;  
+      font-style: normal !important;  
+    }  
+    code em, code i, pre em, pre i {  
+      font-family: 'CodeFontItalic', monospace !important;  
+      font-style: normal !important;  
+    }  
+    #loading-mask {  
+      position: fixed;  
+      inset: 0;  
+      z-index: 9999;  
+      display: flex;  
+      flex-direction: column;
+      align-items: center;  
+      justify-content: center;  
+      transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);  
+      background: #ebfbee;  
+    }  
+    @media (prefers-color-scheme: dark) {  
+      #loading-mask {  
+        background: #0b6a1e;  
+      }  
+    }  
+    .loading-spinner {  
+      width: 40px;  
+      height: 40px;  
+      border: 3px solid #D3F9d8;  
+      border-top-color: #2f9e44;  
+      border-radius: 50%;  
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;  
+    }
+    .loading-footer {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 360px;
+      opacity: 0;
+      /* 这里不用 linear，用曲线缓动 */
+      transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .loading-footer.show {
+      opacity: 1;
+    }
+    @keyframes spin {  
+      to { transform: rotate(360deg); }  
+    }  
+    #loading-mask.fade-out {  
+      opacity: 0;  
+      pointer-events: none;  
+    }  
+  </style>  
+</head>  
+
+<body class="bg-[url('./pictures/light_backdrop.jpg')] dark:bg-[url('./pictures/dark_backdrop.jpg')] text-gray-900 dark:text-white flex items-center justify-center p-4">  
+  <div id="loading-mask">  
+    <div class="loading-spinner"></div>
+
+    <div class="loading-footer" id="loadingFooter">
+      <img 
+        src="./pictures/index/light_footer.png" 
+        class="block dark:hidden w-alto h-full"
+        onload="checkFooterImageLoaded()"
+        alt="Footer Light"
+      >
+      <img 
+        src="./pictures/index/dark_footer.png" 
+        class="hidden dark:block w-alto h-full"
+        onload="checkFooterImageLoaded()"
+        alt="Footer Dark"
+      >
+    </div>
+  </div>  
+
+  <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-10 py-8 shadow-xl flex flex-col items-center gap-6">  
+    <h2 class="text-[clamp(1.5rem,4vw,2.2rem)] font-medium text-center">网站正在更新中</h2>  
+
+    <button id="催更按钮" onclick="handle催更()" class="bg-green-600 hover:bg-green-700 active:scale-95 transition-all text-white px-6 py-3 rounded-[12px] font-medium flex items-center gap-2">  
+      <svg id="默认图标" class="w-5 h-5 text-white" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>  
+        <title>play_line</title>  
+        <g id="play_line" fill='none' fill-rule='evenodd'>  
+          <path d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z'/>  
+          <path fill='currentColor' d='M7.575 5.708a62.407 62.407 0 0 0-.302 6.287c0 2.801.17 4.997.302 6.289a62.713 62.713 0 0 0 5.595-2.887 62.704 62.704 0 0 0 5.296-3.401 62.886 62.886 0 0 0-5.295-3.405 62.882 62.882 0 0 0-5.596-2.883M5.67 4.76a1.469 1.469 0 0 1 2.04-1.177c1.062.454 3.442 1.533 6.462 3.276 3.021 1.744 5.146 3.267 6.069 3.958.788.591.79 1.763.001 2.356-.914.687-3.013 2.19-6.07 3.956-3.06 1.766-5.412 2.832-6.464 3.28-.906.387-1.92-.2-2.038-1.177-.138-1.142-.396-3.735-.396-7.237 0-3.5.257-6.092.396-7.235'/>  
+        </g>  
+      </svg>  
+
+      <svg id="加载图标" class="w-5 h-5 text-white animate-spin hidden" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>  
+        <title>loading_3_line</title>  
+        <g id="loading_3_line" fill='none' fill-rule='evenodd'>  
+          <path d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z'/>  
+          <path fill='currentColor' d='M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12' opacity='.1'/>  
+          <path fill='currentColor' d='M12 4a7.958 7.958 0 0 0-5.533 2.222a1 1 0 1 1-1.384-1.444A9.958 9.958 0 0 1 12 2a1 1 0 1 1 0 2'/>  
+        </g>  
+      </svg>  
+
+      <svg id="成功图标" class="w-5 h-5 text-white hidden" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>  
+        <title>check_circle_line</title>  
+        <g id="check_circle_line" fill='none'>  
+          <path d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z'/>  
+          <path fill='currentColor' d='M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l-.094.084 2.122 2.121 4.95-4.95Z'/>  
+        </g>  
+      </svg>  
+      <span id="按钮文本">点击催更</span>  
+    </button>  
+  </div>  
+
+  <a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-20 backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">  
+    <svg xmlns='http://www.w3.org/2000/svg' width="20" height="20" viewBox='0 0 24 24' class="flex-shrink-0">  
+      <title>编辑此页面</title>  
+      <g id="pen_line" fill='none'>  
+        <path d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z'/>  
+        <path fill='currentColor' d='M12.138 4.538a2 2 0 0 1 2.031.328l.126.115 4.724 4.724a2 2 0 0 1 .5 1.997l-.057.16-2.365 5.913a1.999 1.999 0 0 1-1.605 1.24l-5.079.635c-.13.015-.268.034-.41.056l-.444.072-.232.042-.723.14-.495.106-.745.167-.955.228-1.552.396-.646.174a1.01 1.01 0 0 1-1.265-1.134l.034-.146.295-1.112.264-1.048.228-.955.167-.745.105-.496.141-.722.08-.457.064-.428.66-5.28a1.999 1.999 0 0 1 1.09-1.536l.151-.069zm.742 1.857L6.968 8.76l-.584 4.672-.048.396a26.886 26.886 0 0 1-.385 2.192l-.171.786 3.288-3.288a2 2 0 1 1 1.414 1.414L7.194 18.22l.392-.087.784-.165a27.455 27.455 0 0 1 1.473-.26l5.397-.676 2.365-5.912zm2.363-3.294a1 1 0 0 1 1.32-.084l.094.084 4.242 4.242a1 1 0 0 1-1.32 1.498l-.094-.084-4.242-4.242a1 1 0 0 1 0-1.414'/>  
+      </g>  
+    </svg>  
+    编辑此页面  
+  </a>  
+
+  <div class="fixed bottom-0 left-0 right-0 backdrop-blur-[6px] bg-white/50 dark:bg-black/30 py-3 text-center text-gray-800 dark:text-white text-sm">  
+    <div>Copyright &copy; 2024-2026 OriginallyX Coalition Studio. All rights reserved.</div>  
+    <div>Made with ❤️ in China. 在中国，用 ❤️ 制作。</div>  
+    <div>我们会在五天之内制作完第一个界面。We'll done the first interface in FIVE days.</div>  
+  </div>  
+
+  <script>  
+    tailwind.config = {  
+      darkMode: 'media',  
+      theme: {  
+        colors: {  
+          green: {50:'#EBFBEE',100:'#D3F9D8',200:'#B2F2BB',300:'#8CE99A',400:'#69DB7C',500:'#51CF66',600:'#40C057',700:'#37B24D',800:'#2F9E44',900:'#2B8A3E'},  
+          white: '#fff', black: '#000', transparent: 'transparent'  
+        }  
+      }  
+    }
+
+    let footerImageLoaded = false;
+    function checkFooterImageLoaded() {
+      if(!footerImageLoaded) {
+        footerImageLoaded = true;
+        document.getElementById('loadingFooter').classList.add('show');
+      }
+    }
+
+    window.addEventListener('load', function () {  
+      setTimeout(() => {  
+        const mask = document.getElementById('loading-mask');  
+        mask.classList.add('fade-out');  
+        setTimeout(() => mask.remove(), 800);  
+      }, 200);  
+    });  
+
+    function handle催更() {  
+      const btn = document.getElementById('催更按钮');  
+      const text = document.getElementById('按钮文本');  
+      const 默认图标 = document.getElementById('默认图标');  
+      const 加载图标 = document.getElementById('加载图标');  
+      const 成功图标 = document.getElementById('成功图标');  
+
+      btn.disabled = true;  
+      btn.classList.add('opacity-70', 'cursor-not-allowed');  
+      默认图标.classList.add('hidden');  
+      成功图标.classList.add('hidden');  
+      加载图标.classList.remove('hidden');  
+      text.textContent = '正在催更...';  
+
+      setTimeout(() => {  
+        加载图标.classList.add('hidden');  
+        成功图标.classList.remove('hidden');  
+        text.textContent = '催更成功';  
+        setTimeout(() => {  
+          成功图标.classList.add('hidden');  
+          默认图标.classList.remove('hidden');  
+          btn.disabled = false;  
+          btn.classList.remove('opacity-70', 'cursor-not-allowed');  
+          text.textContent = '点击催更';  
+        }, 1000);  
+      }, 2000);  
+    }  
+  </script>  
+</body>  
+</html>
