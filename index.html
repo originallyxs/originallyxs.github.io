@@ -115,7 +115,7 @@
       网站正在更新中
     </h2>
 
-    <!-- 催更按钮 → 圆角改为12px -->
+    <!-- 催更按钮 圆角12 -->
     <button
       id="催更按钮"
       onclick="handle催更()"
@@ -130,22 +130,29 @@
         </g>
       </svg>
 
-      <!-- 加载图标 -->
+      <!-- 修复后的加载图标 -->
       <svg id="加载图标" class="w-5 h-5 text-white animate-spin hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8Zm0 14a6 6 0 1 1 6-6 6 6 0 0 1-6 6Z"/>
+        <title>loading</title>
+        <g fill="none" fill-rule="evenodd">
+          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" stroke="currentColor" stroke-width="2" opacity=".25"/>
+          <path d="M12 4a8 8 0 1 0 0 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </g>
       </svg>
 
       <!-- 成功图标 -->
       <svg id="成功图标" class="w-5 h-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12 2A10 10 0 1 0 22 12 10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Z"/>
-        <path fill="currentColor" d="M10.41 16l-3.71-3.71 1.41-1.41 2.3 2.3 5.3-5.3 1.41 1.41z"/>
+        <title>check_circle_line</title>
+        <g fill="none">
+          <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l.094.084 2.122 2.121 4.95-4.95z"/>
+          <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l.094.084 2.122 2.121 4.95-4.95z"/>
+        </g>
       </svg>
 
       <span id="按钮文本">点击催更</span>
     </button>
   </div>
 
-  <!-- 编辑按钮 → 圆角12px + 上移（bottom从12改成16） -->
+  <!-- 编辑按钮 圆角12 + bottom-20 -->
   <a href="https://github.com/originallyxs/originallyxs.github.io"
      target="_blank"
      class="fixed left-4 bottom-20 backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">
