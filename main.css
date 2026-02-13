@@ -1,1 +1,71 @@
+/* ==============================================
+   1. 定义所有自定义字体（当前目录 ./）
+   ============================================== */
+@font-face {
+  font-family: 'CurrentFont';
+  src: url('./currentFont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SerifFont';
+  src: url('./serifFont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CodeFont';
+  src: url('./codeFont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CodeFontItalic';
+  src: url('./codeFontItalic.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==============================================
+   2. 全局强制默认字体
+   ============================================== */
+* {
+  font-family: 'CurrentFont', sans-serif !important;
+}
+
+/* ==============================================
+   3. 全局衬线字体使用（需要衬线的地方）
+   ============================================== */
+.serif,
+blockquote {
+  font-family: 'SerifFont', serif !important;
+}
+
+/* ==============================================
+   4. 代码字体：非斜体（强制正体）
+   ============================================== */
+code,
+pre,
+pre code {
+  font-family: 'CodeFont', monospace !important;
+  font-style: normal !important;
+}
+
+/* ==============================================
+   5. 代码斜体：使用专门的斜体字体
+   ============================================== */
+code em,
+code i,
+pre em,
+pre i {
+  font-family: 'CodeFontItalic', monospace !important;
+  font-style: normal !important;
+}
 
