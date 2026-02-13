@@ -1,56 +1,83 @@
 (function () {
-  // 1. 强制注入 Tailwind CSS
-  const tailwindScript = document.createElement('script')
-  tailwindScript.src = 'https://cdn.tailwindcss.com'
-  tailwindScript.async = true
-  document.head.appendChild(tailwindScript)
+  // 1. 创建加载蒙版
+  const mask = document.createElement('div')
+  mask.id = 'loading-mask'
+  mask.innerHTML = `<div class="loading-spinner"></div>`
+  document.body.appendChild(mask)
 
-  // 2. 等 Tailwind 加载完，立刻配置主题：Open Color / Green 全色系
-  tailwindScript.onload = function () {
+  // 兜底基础样式
+  mask.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+  `
+
+  // 2. 加载 Tailwind
+  const tw = document.createElement('script')
+  tw.src = 'https://cdn.tailwindcss.com'
+  tw.async = true
+  document.head.appendChild(tw)
+
+  tw.onload = function () {
     tailwind.config = {
       theme: {
-        // 强制把颜色体系全部换成 Open Color Green
         colors: {
-          // Open Color Green 标准色阶
           green: {
-            50: '#F0FDF4',
-            100: '#D3F9E4',
-            200: '#A6F2CE',
-            300: '#6CEAAD',
-            400: '#36D399',
-            500: '#10B981',
-            600: '#059669',
-            700: '#047857',
-            800: '#065F46',
+            50: '#F0FDF4', 100: '#D3F9E4', 200: '#A6F2CE',
+            300: '#6CEAAD', 400: '#36D399', 500: '#10B981',
+            600: '#059669', 700: '#047857', 800: '#065F46',
             900: '#064E3B'
           },
-          // 把基础色也强制绑定到 green 系
-          primary: '#10B981',
-          secondary: '#36D399',
-          accent: '#059669',
-          neutral: '#064E3B',
-          white: '#ffffff',
-          black: '#000000',
-          transparent: 'transparent'
+          white: '#fff', black: '#000', transparent: 'transparent'
         }
       }
     }
 
-    // 3. 强制全局使用 Tailwind 样式（覆盖原有样式）
-    const style = document.createElement('style')
-    style.textContent = `
-      * {
-        @apply box-border m-0 p-0;
+    // 蒙版：完全不透明 + 非线性动画
+    const maskStyle = document.createElement('style')
+    maskStyle.textContent = `
+      /* 亮色模式 - 完全不透明 */
+      #loading-mask {
+        background: #F0FDF4;
+        backdrop-filter: blur(6px);
       }
-      html, body {
-        @apply font-sans text-green-900 bg-green-50;
+      /* 暗色模式 - 完全不透明 */
+      @media (prefers-color-scheme: dark) {
+        #loading-mask {
+          background: #064E3B;
+          backdrop-filter: blur(6px);
+        }
       }
-      /* 强制按钮、边框、状态都用 green 色系 */
-      button {
-        @apply bg-green-600 hover:bg-green-700 text-white rounded transition-colors;
+      /* 非线性旋转动画 */
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #D3F9E4;
+        border-top-color: #10B981;
+        border-radius: 50%;
+        animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      /* 非线性淡出 */
+      #loading-mask.fade-out {
+        opacity: 0;
+        pointer-events: none;
       }
     `
-    document.head.appendChild(style)
+    document.head.appendChild(maskStyle)
   }
-})()
 
+  // 3. 页面加载完成后渐隐
+  window.addEventListener('load', function () {
+    setTimeout(() => {
+      mask.classList.add('fade-out')
+      setTimeout(() => mask.remove(), 800)
+    }, 200)
+  })
+})()
