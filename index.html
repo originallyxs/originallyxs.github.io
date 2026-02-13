@@ -3,10 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-  <title>网站正在更新中</title>
+  <title>网站更新中</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* 引入自定义字体 */
+    @font-face {
+      font-family: 'CurrentFont';
+      src: url('./currentFont.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* 全局应用字体 */
     html, body {
+      font-family: 'CurrentFont', sans-serif;
       overflow: hidden;
       touch-action: none;
       height: 100%;
@@ -35,13 +46,13 @@
       网站正在更新中
     </h2>
 
-    <!-- 按钮：使用你提供的加载和成功SVG，图标在文字左侧 -->
+    <!-- 按钮：使用你提供的加载和成功SVG -->
     <button 
       id="催更按钮"
       onclick="handle催更()"
       class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2"
     >
-      <!-- 你提供的加载图标 -->
+      <!-- 加载图标 -->
       <svg id="加载图标" class="w-5 h-5 text-white animate-spin hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
         <title>loading_3_line</title>
         <g id="loading_3_line" fill="none" fill-rule="evenodd">
@@ -50,7 +61,7 @@
           <path fill="currentColor" d="M12 4a7.958 7.958 0 0 0-5.533 2.222 1 1 0 1 1-1.384-1.444A9.958 9.958 0 0 1 12 2a1 1 0 1 1 0 2"/>
         </g>
       </svg>
-      <!-- 你提供的成功图标 -->
+      <!-- 成功图标 -->
       <svg id="成功图标" class="w-5 h-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
         <title>check_circle_line</title>
         <g id="check_circle_line" fill="none">
