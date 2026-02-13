@@ -115,13 +115,13 @@
       网站正在更新中
     </h2>
 
-    <!-- 催更按钮（图标切换已修复） -->
+    <!-- 催更按钮 → 圆角改为12px -->
     <button
       id="催更按钮"
       onclick="handle催更()"
-      class="bg-green-600 hover:bg-green-700 active:scale-95 transition-all text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2"
+      class="bg-green-600 hover:bg-green-700 active:scale-95 transition-all text-white px-6 py-3 rounded-[12px] font-medium flex items-center gap-2"
     >
-      <!-- 默认图标：你提供的 play_line -->
+      <!-- 默认图标：play_line -->
       <svg id="默认图标" class="w-5 h-5 text-white" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
         <title>play_line</title>
         <g id="play_line" fill='none' fill-rule='evenodd'>
@@ -130,26 +130,25 @@
         </g>
       </svg>
 
-      <!-- 加载图标（修复后，默认隐藏） -->
+      <!-- 加载图标 -->
       <svg id="加载图标" class="w-5 h-5 text-white animate-spin hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12,4a8,8,0,1,0,8,8A8,8,0,0,0,12,4Zm0,14a6,6,0,1,1,6-6A6,6,0,0,1,12,18Z"/>
-        <path fill="currentColor" d="M12,2a10,10,0,1,0,10,10A10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"/>
+        <path fill="currentColor" d="M12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8Zm0 14a6 6 0 1 1 6-6 6 6 0 0 1-6 6Z"/>
       </svg>
 
-      <!-- 成功图标（默认隐藏） -->
+      <!-- 成功图标 -->
       <svg id="成功图标" class="w-5 h-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"/>
-        <path fill="currentColor" d="M10.41,16l-3.71-3.71L8.29,10.71,10.41,12.83,15.64,7.6,17.76,9.71Z"/>
+        <path fill="currentColor" d="M12 2A10 10 0 1 0 22 12 10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Z"/>
+        <path fill="currentColor" d="M10.41 16l-3.71-3.71 1.41-1.41 2.3 2.3 5.3-5.3 1.41 1.41z"/>
       </svg>
 
       <span id="按钮文本">点击催更</span>
     </button>
   </div>
 
-  <!-- 编辑页面按钮 -->
+  <!-- 编辑按钮 → 圆角12px + 上移（bottom从12改成16） -->
   <a href="https://github.com/originallyxs/originallyxs.github.io"
      target="_blank"
-     class="fixed left-4 bottom-12 backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-lg text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">
+     class="fixed left-4 bottom-16 backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">
     <svg xmlns='http://www.w3.org/2000/svg' width="20" height="20" viewBox='0 0 24 24' class="flex-shrink-0">
       <title>pen_line</title>
       <g id="pen_line" fill='none'>
@@ -185,7 +184,6 @@
       }, 200);
     });
 
-    // 修复后的催更图标切换逻辑
     function handle催更() {
       const btn = document.getElementById('催更按钮');
       const text = document.getElementById('按钮文本');
@@ -196,20 +194,17 @@
       btn.disabled = true;
       btn.classList.add('opacity-70', 'cursor-not-allowed');
       
-      // 隐藏默认，显示加载
       默认图标.classList.add('hidden');
       成功图标.classList.add('hidden');
       加载图标.classList.remove('hidden');
       text.textContent = '正在催更...';
 
       setTimeout(() => {
-        // 隐藏加载，显示成功
         加载图标.classList.add('hidden');
         成功图标.classList.remove('hidden');
         text.textContent = '催更成功';
 
         setTimeout(() => {
-          // 恢复默认
           成功图标.classList.add('hidden');
           默认图标.classList.remove('hidden');
           btn.disabled = false;
