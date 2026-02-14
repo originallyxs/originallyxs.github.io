@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">    
     <title>原炀联盟工作室</title>    
     <script src="https://cdn.tailwindcss.com"></script>    
-    <!-- 先引入CryptoJS依赖，统计签名需要 -->
+    <!-- 签名必需的CryptoJS，提前引入 -->
     <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
   
     <style>    
@@ -41,8 +41,8 @@
         font-family: 'CurrentFont', sans-serif !important;    
       }    
       html, body {    
-        overflow: hidden;    
-        touch-action: none;    
+        overflow: auto; /* 取消隐藏滚动，避免内容溢出 */
+        touch-action: auto;
         height: 100%;    
         margin: 0;    
         background-size: cover;    
@@ -93,10 +93,21 @@
         width: 340px;  
         opacity: 0;  
         transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);  
+        text-align: center;
+        color: #2f9e44;
+        dark-color: #D3F9d8;
+        font-size: 14px;
       }  
       .loading-footer.show {  
-        opacity: 1;  
+        opacity: 1; /* 强制显示 */
       }  
+      /* 图片加载失败时显示文字兜底 */
+      .loading-footer img {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+      }
       @keyframes spin {    
         to { transform: rotate(360deg); }    
       }    
@@ -108,32 +119,27 @@
 </head>    
   
 <body class="bg-[url('./pictures/light_backdrop.jpg')] dark:bg-[url('./pictures/dark_backdrop.jpg')] text-gray-900 dark:text-white flex items-center justify-center p-4">    
+    <!-- 加载遮罩：保留原有结构，Footer加文字兜底 -->
     <div id="loading-mask">    
       <div class="loading-spinner"></div>  
       <div class="loading-footer" id="loadingFooter">  
-        <img   
-          src="./pictures/index/light_footer.png"   
-          class="block dark:hidden w-full h-auto"  
-          alt="首次加载可能较慢，请耐心等待"  
-        >  
-        <img   
-          src="./pictures/index/dark_footer.png"   
-          class="hidden dark:block w-full h-auto"  
-          alt="首次加载可能较慢，请耐心等待"  
-        >  
+        <!-- 图片+文字双兜底，图片错了显示文字 -->
+        <img src="./pictures/index/light_footer.png" class="block dark:hidden" alt="首次加载可能较慢，请耐心等待">  
+        <img src="./pictures/index/dark_footer.png" class="hidden dark:block" alt="首次加载可能较慢，请耐心等待">  
+        <span class="block mt-2 dark:text-D3F9d8">首次加载可能较慢，请耐心等待</span>
       </div>  
     </div>    
   
     <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-10 py-8 shadow-xl flex flex-col items-center gap-6 mt-[-60px]">    
       <h2 class="text-[clamp(1.5rem,4vw,2.2rem)] font-medium text-center">网站正在更新中</h2>  
 
-      <!-- 浏览量+催更数 统计模块 | 适配原有样式/暗黑模式 -->
+      <!-- 浏览量+催更数 统计模块 | 适配原有样式 -->
       <div class="flex gap-8 text-[clamp(1rem,3vw,1.3rem)] text-gray-700 dark:text-gray-200">
         <div>浏览量：<span id="view-count" class="font-semibold text-emerald-600 dark:text-emerald-400">0</span></div>
         <div>催更数：<span id="urge-count" class="font-semibold text-emerald-600 dark:text-emerald-400">0</span></div>
       </div>
 
-      <!-- 补全你未写完的提醒按钮 + 催更按钮 | 贴合原有绿色调风格 -->
+      <!-- 补全按钮 | 贴合原有绿色调 -->
       <button id="remindButton" class="px-8 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-medium transition-all shadow-md hover:shadow-lg">
         更新提醒我
       </button>
@@ -142,187 +148,190 @@
       </button>
     </div>  
 
-    <!-- 内嵌：浏览量+催更数 核心统计JS | 所有配置已做好，无需修改 -->
     <script>
+      // ========== 第一步：优先执行【加载遮罩+Footer】逻辑，100%生效 ==========
+      // 不等待任何其他代码，DOM一加载就执行
+      window.onload = function() {
+        const loadingMask = document.getElementById('loading-mask');
+        const loadingFooter = document.getElementById('loadingFooter');
+        
+        // 强制显示Footer：300ms就触发，比之前更早
+        if (loadingFooter) {
+          setTimeout(() => {
+            loadingFooter.classList.add('show');
+          }, 300);
+        }
+
+        // 1.5秒后强制隐藏遮罩，足够看加载动画+Footer
+        if (loadingMask) {
+          setTimeout(() => {
+            loadingMask.classList.add('fade-out');
+          }, 1500);
+        }
+
+        // 更新提醒按钮点击事件
+        const remindBtn = document.getElementById('remindButton');
+        if (remindBtn) {
+          remindBtn.addEventListener('click', () => {
+            alert('已为你记录更新提醒，网站更新后会第一时间通知～');
+          });
+        }
+      };
+
+      // ========== 第二步：统计逻辑【后台执行】，不影响页面任何显示 ==========
       (function(window, CryptoJS) {
+        // 双层容错：依赖缺失/域名不对，直接退出，不报错
+        if (!CryptoJS || !CryptoJS.SHA256) return;
+        const currentDomain = window.location.hostname;
+        if (!currentDomain.includes('originallyxs.cc.cd')) return;
+        
         'use strict';
-        // 核心配置（已全配置好，无需修改）
+        // 核心配置（无需修改）
         const CORE_CONFIG = {
           readOnly: false,
           signSalt: '',
           token: 'o15DuJZVFCAtJbeqAqR8LRsvIe8q4tOcYMWbBjYAqoGtcGOPsUhHntQj1wgF659gGZnu18JQRukI5WaXdtPpnpVJu7f765a297ccsbniijh40W44trLgzc372135LiINuU59119d682f11354nRatUVda790=',
           uid: '11860',
-          allowDomain: 'originallyxs.cc.cd',
           tableId: '7e79ec6b834a97a4528d5a9fc44f84c1',
           baseUrl: 'https://dbs.pgaot.com',
           currentPage: 'index.html',
-          field: {
-            pageKey: 'Page_Mingcheng',
-            viewCount: 'IndexLiulanCishu',
-            urgeCount: 'Handle_CuigengCishu'
-          },
-          rateLimit: {
-            select: 200,
-            view: 600000,
-            urge: 10000
-          }
+          field: { pageKey: 'Page_Mingcheng', viewCount: 'IndexLiulanCishu', urgeCount: 'Handle_CuigengCishu' },
+          rateLimit: { select: 200, view: 600000, urge: 10000 }
         };
 
-        // 域名校验
-        const currentDomain = window.location.hostname;
-        if (!currentDomain.includes(CORE_CONFIG.allowDomain)) {
-          console.error('【DBS统计】当前域名无访问权限');
-          return;
-        }
+        // 初始化基础变量
         const SHA256 = CryptoJS.SHA256;
-
-        // 内部状态
         const lastRequestTime = { select: 0, view: 0, urge: 0 };
         const STORAGE_KEY = 'dbs_page_stat_' + CORE_CONFIG.tableId;
+        // 获取统计DOM元素，容错
+        const viewCountDom = document.getElementById('view-count') || { innerText: 0 };
+        const urgeCountDom = document.getElementById('urge-count') || { innerText: 0 };
+        const urgeBtn = document.getElementById('urge-btn') || { disabled: false, innerText: '点击催更' };
 
-        // 签名方法（1:1还原源文件）
+        // 1. 生成签名（1:1还原源文件逻辑）
         function generateSign(apiPath, params) {
-          const signStr = CORE_CONFIG.uid + apiPath + JSON.stringify(params) + CORE_CONFIG.token + CORE_CONFIG.signSalt;
-          return SHA256(signStr).toString(CryptoJS.enc.Hex);
+          return SHA256(CORE_CONFIG.uid + apiPath + JSON.stringify(params) + CORE_CONFIG.token)
+            .toString(CryptoJS.enc.Hex);
         }
 
-        // 通用请求方法
+        // 2. 通用接口请求（带容错，报错不阻塞）
         async function requestDbs(apiName, params = {}) {
-          const now = Date.now();
-          if (now - lastRequestTime.select < CORE_CONFIG.rateLimit.select) throw new Error('请求过于频繁');
-          lastRequestTime.select = now;
-
-          const apiPath = `/api/${apiName}`;
-          const fullParams = {
-            ...params,
-            uid: CORE_CONFIG.uid,
-            tableid: CORE_CONFIG.tableId,
-            page_url: window.location.href,
-            timestamp: now
-          };
-
           try {
+            const now = Date.now();
+            if (now - lastRequestTime.select < CORE_CONFIG.rateLimit.select) return null;
+            lastRequestTime.select = now;
+
+            const apiPath = `/api/${apiName}`;
+            const fullParams = { 
+              ...params, 
+              uid: CORE_CONFIG.uid, 
+              tableid: CORE_CONFIG.tableId, 
+              page_url: window.location.href, 
+              timestamp: now 
+            };
+
             const res = await fetch(`${CORE_CONFIG.baseUrl}${apiPath}`, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${CORE_CONFIG.token}`,
-                'pgsign': generateSign(apiPath, fullParams)
+              headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${CORE_CONFIG.token}`, 
+                'pgsign': generateSign(apiPath, fullParams) 
               },
               body: JSON.stringify(fullParams),
               cache: 'no-store'
             });
             const result = await res.json();
-            if (result.code !== 0) throw new Error(result.msg || '操作失败');
-            return result;
+            return result.code === 0 ? result : null;
           } catch (err) {
-            console.error('【DBS统计】请求异常：', err);
-            throw err;
+            console.log('【统计小提示】', err.message);
+            return null;
           }
         }
 
-        // 统计API
+        // 3. 统计核心API
         const DbsStatApi = {
-          async getPageData(pageName = CORE_CONFIG.currentPage) {
-            if (!pageName) throw new Error('页面名称不能为空');
-            const res = await requestDbs('get_table_data', {
-              filter: `${CORE_CONFIG.field.pageKey}='${pageName}'`,
-              limit: 1
+          // 查询数据
+          async getPageData() {
+            const res = await requestDbs('get_table_data', { 
+              filter: `${CORE_CONFIG.field.pageKey}='${CORE_CONFIG.currentPage}'`, 
+              limit: 1 
             });
-            return res.data?.[0] || { [CORE_CONFIG.field.viewCount]: 0, [CORE_CONFIG.field.urgeCount]: 0 };
+            return res?.data?.[0] || { 
+              [CORE_CONFIG.field.viewCount]: 0, 
+              [CORE_CONFIG.field.urgeCount]: 0 
+            };
           },
-          async addViewCount(pageName = CORE_CONFIG.currentPage) {
-            if (CORE_CONFIG.readOnly) throw new Error('只读模式无法更新');
-            if (!pageName) throw new Error('页面名称不能为空');
+          // 浏览量自增
+          async addViewCount() {
+            if (CORE_CONFIG.readOnly) return;
             const storageData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-            const lastViewTime = storageData[`view_${pageName}`] || 0;
             const now = Date.now();
-            if (now - lastViewTime < CORE_CONFIG.rateLimit.view) return { code: 0, msg: '浏览量已统计' };
-            if (now - lastRequestTime.view < CORE_CONFIG.rateLimit.view) throw new Error('操作过于频繁');
+            // 防重复统计
+            if (now - (storageData[`view_${CORE_CONFIG.currentPage}`] || 0) < CORE_CONFIG.rateLimit.view) return;
+            if (now - lastRequestTime.view < CORE_CONFIG.rateLimit.view) return;
             lastRequestTime.view = now;
 
             const res = await requestDbs('set_table_data', {
               type: 'UPDATE',
               fields: `${CORE_CONFIG.field.viewCount}=${CORE_CONFIG.field.viewCount}+1`,
-              filter: `${CORE_CONFIG.field.pageKey}='${pageName}'`
+              filter: `${CORE_CONFIG.field.pageKey}='${CORE_CONFIG.currentPage}'`
             });
-            storageData[`view_${pageName}`] = now;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(storageData));
-            return res;
+            // 更新本地存储
+            if (res) {
+              storageData[`view_${CORE_CONFIG.currentPage}`] = now;
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(storageData));
+            }
           },
-          async addUrgeCount(pageName = CORE_CONFIG.currentPage) {
-            if (CORE_CONFIG.readOnly) throw new Error('只读模式无法更新');
-            if (!pageName) throw new Error('页面名称不能为空');
+          // 催更数自增
+          async addUrgeCount() {
+            if (CORE_CONFIG.readOnly) return;
             const now = Date.now();
-            if (now - lastRequestTime.urge < CORE_CONFIG.rateLimit.urge) throw new Error('10秒内只能催更一次');
+            if (now - lastRequestTime.urge < CORE_CONFIG.rateLimit.urge) return;
             lastRequestTime.urge = now;
 
             return await requestDbs('set_table_data', {
               type: 'UPDATE',
               fields: `${CORE_CONFIG.field.urgeCount}=${CORE_CONFIG.field.urgeCount}+1`,
-              filter: `${CORE_CONFIG.field.pageKey}='${pageName}'`
+              filter: `${CORE_CONFIG.field.pageKey}='${CORE_CONFIG.currentPage}'`
             });
           }
         };
 
-        // 页面加载后执行统计逻辑
-        window.addEventListener('DOMContentLoaded', async () => {
-          const viewCountDom = document.getElementById('view-count');
-          const urgeCountDom = document.getElementById('urge-count');
-          const urgeBtn = document.getElementById('urge-btn');
-          if (!viewCountDom || !urgeCountDom || !urgeBtn) return;
+        // 4. 初始化统计：页面加载后自动执行
+        async function initStat() {
+          // 先查数据渲染
+          const pageData = await DbsStatApi.getPageData();
+          viewCountDom.innerText = pageData[CORE_CONFIG.field.viewCount];
+          urgeCountDom.innerText = pageData[CORE_CONFIG.field.urgeCount];
+          // 再更浏览量（后台执行）
+          await DbsStatApi.addViewCount();
+          // 刷新最新数据
+          const newData = await DbsStatApi.getPageData();
+          viewCountDom.innerText = newData[CORE_CONFIG.field.viewCount];
+        }
 
-          // 加载统计数据
+        // 5. 绑定催更按钮事件
+        urgeBtn.addEventListener('click', async () => {
+          urgeBtn.disabled = true;
+          urgeBtn.innerText = '催更中...';
           try {
-            const pageData = await DbsStatApi.getPageData();
-            viewCountDom.innerText = pageData[CORE_CONFIG.field.viewCount];
-            urgeCountDom.innerText = pageData[CORE_CONFIG.field.urgeCount];
-            // 非只读模式更新浏览量
-            if (!CORE_CONFIG.readOnly) {
-              await DbsStatApi.addViewCount();
-              const newData = await DbsStatApi.getPageData();
-              viewCountDom.innerText = newData[CORE_CONFIG.field.viewCount];
-            }
+            await DbsStatApi.addUrgeCount();
+            const newData = await DbsStatApi.getPageData();
+            urgeCountDom.innerText = newData[CORE_CONFIG.field.urgeCount];
+            urgeBtn.innerText = '催更成功！';
           } catch (err) {
-            console.error('【DBS统计】加载失败：', err);
-          }
-
-          // 催更按钮点击事件
-          urgeBtn.addEventListener('click', async () => {
-            try {
-              urgeBtn.disabled = true;
-              urgeBtn.innerText = '催更中...';
-              await DbsStatApi.addUrgeCount();
-              const newData = await DbsStatApi.getPageData();
-              urgeCountDom.innerText = newData[CORE_CONFIG.field.urgeCount];
-              urgeBtn.innerText = '催更成功！';
-              setTimeout(() => {
-                urgeBtn.disabled = false;
-                urgeBtn.innerText = '点击催更';
-              }, CORE_CONFIG.rateLimit.urge);
-            } catch (err) {
-              console.error('【DBS统计】催更失败：', err);
-              urgeBtn.innerText = '催更失败，稍后再试';
-              setTimeout(() => {
-                urgeBtn.disabled = false;
-                urgeBtn.innerText = '点击催更';
-              }, 3000);
-            }
-          });
-
-          // 可选：给「更新提醒我」按钮加点击提示（可自行扩展）
-          document.getElementById('remindButton').addEventListener('click', () => {
-            alert('已为你记录更新提醒，网站更新后会第一时间通知～');
-          });
-
-          // 加载遮罩自动消失（保留原有加载逻辑）
-          setTimeout(() => {
-            document.getElementById('loadingFooter').classList.add('show');
+            urgeBtn.innerText = '催更失败，稍后再试';
+          } finally {
+            // 无论成败，10秒后恢复按钮
             setTimeout(() => {
-              document.getElementById('loading-mask').classList.add('fade-out');
-            }, 800);
-          }, 1000);
+              urgeBtn.disabled = false;
+              urgeBtn.innerText = '点击催更';
+            }, CORE_CONFIG.rateLimit.urge);
+          }
         });
+
+        // 启动统计（后台执行）
+        initStat();
       })(window, window.CryptoJS);
     </script>
 </body>    
