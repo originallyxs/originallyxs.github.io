@@ -156,52 +156,31 @@
        </svg>   
        <span id="remindBtnTxt">点击催更</span>   
      </button>
-     <h3>当前催更次数：<span id="remindCount">这玩意谁知道））</span></h3>
+     <h3>当前催更次数：<span id="remindCount">114,514</span></h3>
 
 <script>
+// 依赖 ./ore_webdata.js 获取 Handle_CuigengCishu 字段值
 document.addEventListener('DOMContentLoaded', function() {
-  // 1. 等待 ore_webdata.js 加载完成，确保全局对象可用
-  const checkReady = setInterval(() => {
-    if (window.dbsdata && window.Widget && window.types) {
-      clearInterval(checkReady);
-      fetchCuigengCount(); // 开始查询
-    }
-  }, 100);
-
-  // 超时保护：3秒后仍未加载则放弃
-  setTimeout(() => clearInterval(checkReady), 3000);
-
-  // 2. 封装查询函数，完全依赖 ore_webdata.js 的配置
-  function fetchCuigengCount() {
-    // 初始化 Widget，复用 ore_webdata.js 里的 types
-    const widget = new Widget(window.types);
-
-    // 调用数据表查询接口
-    widget.get_table_data(
-      'Handle_CuigengCishu', // 要查询的字段名（大小写严格一致）
-      '',                     // 排序字段（空表示默认）
-      '',                     // 筛选条件（空表示查询全部）
-      1,                      // 页码
-      1,                      // 每页条数
-      '',                     // 自定义标识
-      (res) => {
-        const countElem = document.getElementById('remindCount');
-        if (res.code === 460 && res.data && res.data.length > 0) {
-          // 查询成功：读取字段值并格式化显示
-          const count = res.data[0].Handle_CuigengCishu || 114514;
-          countElem.textContent = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        } else {
-          // 查询失败：显示默认值
-          countElem.textContent = '114,514';
+  const countElem = document.getElementById('remindCount');
+  if (window.dbsdata && window.Widget && window.types) {
+    try {
+      const widget = new Widget(window.types);
+      widget.get_table_data(
+        'Handle_CuigengCishu', // 严格匹配字段名
+        '', '', 1, 1, '',
+        (res) => {
+          if (res.code === 460 && res.data?.length) {
+            const count = res.data[0].Handle_CuigengCishu;
+            if (count !== undefined && count !== null) {
+              countElem.textContent = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+          }
         }
-      }
-    );
+      );
+    } catch (e) {}
   }
 });
-
 </script>
-
-
    </div>   
   
    <a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">   
