@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">    
  <head>   
    <meta charset="UTF-8">   
@@ -114,13 +114,13 @@
          src="./pictures/index/light_footer.png"  
          class="block dark:hidden w-full h-auto" 
          onload="checkFooterImageLoaded()" 
-         alt="Footer Light" 
+         alt="首次加载可能较慢，请耐心等待" 
        > 
        <img  
          src="./pictures/index/dark_footer.png"  
          class="hidden dark:block w-full h-auto" 
          onload="checkFooterImageLoaded()" 
-         alt="Footer Dark" 
+         alt="首次加载可能较慢，请耐心等待" 
        > 
      </div> 
    </div>   
@@ -169,7 +169,8 @@
    </a>   
   <footer>
    <div class="fixed bottom-0 left-0 right-0 backdrop-blur-[6px] bg-white/50 dark:bg-black/30 py-3 text-center text-gray-800 dark:text-white text-sm">   
-     <div>Copyright &copy; 2024-2026 OriginallyX Coalition Studio. All rights reserved.</div>   
+     <div>Copyright &copy; 2024-<script>document.write(const year = new Date().getFullYear()
+)</script> OriginallyX Coalition Studio. All rights reserved.</div>   
      <div>Made with ❤️ in China. 在中国，用 ❤️ 制作。</div>   
      <div>我们会在五天之内制作完第一个界面。We'll finish the first interface in FIVE days.</div>   
    </div>   
