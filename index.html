@@ -155,21 +155,40 @@
        </svg>   
        <span id="remindBtnTxt">点击催更</span>   
      </button>
-     <h3>当前催更次数：<span id="remindCount">0</span></h3>
+     <h3>当前催更次数：<span id="remindCount">这玩意谁知道））</span></h3>
 
 <script>
-// 读取数据表中 Handle_CuigengCishu 字段的值
-if (window.Widget) {
-  const cuigengWidget = new Widget(types);
-  // 调用数据表查询方法，筛选 Handle_CuigengCishu 字段
-  cuigengWidget.get_table_data('Handle_CuigengCishu', '', '', 1, 1, '', (res) => {
-    if (res.code === 460 && res.data && res.data.length > 0) {
-      // 赋值给页面显示
-      document.getElementById('remindCount').textContent = res.data[0].Handle_CuigengCishu || 0;
+// 依赖 ore_webdata.js 自动注入的 dbsdata 配置（仅通过文件名关联）
+document.addEventListener('DOMContentLoaded', function() {
+  // 等待 ore_webdata.js 加载完成（确保 dbsdata 和 Widget 全局可用）
+  const checkConfig = setInterval(() => {
+    if (window.dbsdata && window.Widget && window.types) {
+      clearInterval(checkConfig);
+
+      // 直接使用 ore_webdata.js 中的数据表配置（无需手动填ID）
+      const cuigengWidget = new Widget(window.types);
+
+      // 发起查询：字段名严格匹配 Handle_CuigengCishu
+      cuigengWidget.get_table_data(
+        'Handle_CuigengCishu', // 目标字段（大小写一致）
+        '', '', 1, 1, '', 
+        (res) => {
+          const countElem = document.getElementById('remindCount');
+          if (res.code === 460 && res.data?.length) {
+            // 数据表有值则格式化显示，无值则用默认114,514
+            const count = res.data[0].Handle_CuigengCishu || 114514;
+            countElem.textContent = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          }
+        }
+      );
     }
-  });
-}
+  }, 100);
+
+  // 超时保护：3秒后仍未加载 ore_webdata.js，保持默认值
+  setTimeout(() => clearInterval(checkConfig), 3000);
+});
 </script>
+
 
    </div>   
   
