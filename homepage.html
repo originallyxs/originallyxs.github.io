@@ -135,7 +135,7 @@
        <input  
          type="text"  
          id="searchInput"  
-         placeholder="输入网址跳转 / 输入文字搜索" 
+         placeholder="请输入文本" 
          class="w-full max-w-md rounded-[12px] px-6 py-3 backdrop-blur-[6px] bg-white/60 dark:bg-black/60 border-0 shadow-sm text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600 dark:focus:ring-green-500" 
        /> 
        <!-- 智能跳转/搜索按钮 --> 
@@ -159,7 +159,7 @@
              <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l-.094.084 2.122 2.121 4.95-4.95Z"></path> 
            </g> 
          </svg> 
-         <span id="searchBtnTxt">智能跳转</span> 
+         <span id="searchBtnTxt">跳转</span> 
        </button> 
      </div> 
      <a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">     
@@ -239,7 +239,7 @@
        const inputValue = searchInput.value.trim();
 
        if (!inputValue) { 
-         alert('请输入内容'); 
+         alert('请输入文本'); 
          return; 
        }
 
@@ -271,7 +271,7 @@
            searchIcon.classList.remove('hidden');    
            btn.disabled = false;    
            btn.classList.remove('opacity-70', 'cursor-not-allowed');    
-           text.textContent = '智能跳转';    
+           text.textContent = '跳转';    
          }, 1000);    
        }, 1000);    
      }
