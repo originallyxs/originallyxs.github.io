@@ -93,7 +93,7 @@
        transform: translateX(-50%);  
        width: 340px;  
        opacity: 0;  
-       transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);  
+       transition: opacity 0.7s cubic-bezier(0.25, 0.25, 1);  
      }  
      .loading-footer.show {  
        opacity: 1;  
@@ -131,14 +131,14 @@
        <h2 class="text-[clamp(1.5rem,4vw,2.2rem)] font-medium text-center"> 
          主页正在更新中 
        </h2> 
-       <!-- 网址跳转输入框 --> 
+       <!-- 智能输入框：网址跳转+文字搜索 --> 
        <input  
          type="text"  
          id="searchInput"  
-         placeholder="输入网址跳转，如 baidu.com / https://xxx" 
+         placeholder="输入网址跳转 / 输入文字搜索" 
          class="w-full max-w-md rounded-[12px] px-6 py-3 backdrop-blur-[6px] bg-white/60 dark:bg-black/60 border-0 shadow-sm text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600 dark:focus:ring-green-500" 
        /> 
-       <!-- 跳转按钮 --> 
+       <!-- 智能跳转/搜索按钮 --> 
        <button id="searchButton" onclick="handleSearch()" class="bg-green-600 hover:bg-green-700 active:scale-95 transition-all text-white px-6 py-3 rounded-[12px] font-medium flex items-center gap-2"> 
          <svg id="searchIcon" class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> 
            <circle cx="11" cy="11" r="8"></circle> 
@@ -159,7 +159,7 @@
              <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l-.094.084 2.122 2.121 4.95-4.95Z"></path> 
            </g> 
          </svg> 
-         <span id="searchBtnTxt">网址跳转</span> 
+         <span id="searchBtnTxt">智能跳转</span> 
        </button> 
      </div> 
      <a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">     
@@ -220,7 +220,15 @@
        }, 200);    
      });
 
-     // 智能网址跳转核心函数
+     // 智能判断：网址跳转，文字搜索
+     function isUrl(text) {
+       // 匹配带http/https的网址
+       const urlRegex = /^(https?:\/\/)/i;
+       // 匹配域名格式（如baidu.com）
+       const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+       return urlRegex.test(text) || domainRegex.test(text);
+     }
+
      function handleSearch() {    
        const btn = document.getElementById('searchButton');    
        const text = document.getElementById('searchBtnTxt');    
@@ -231,7 +239,7 @@
        const inputValue = searchInput.value.trim();
 
        if (!inputValue) { 
-         alert('请输入网址'); 
+         alert('请输入内容'); 
          return; 
        }
 
@@ -240,31 +248,35 @@
        searchIcon.classList.add('hidden');    
        successIcon.classList.add('hidden');    
        loadIcon.classList.remove('hidden');    
-       text.textContent = '正在跳转...';
+       text.textContent = '处理中...';
 
        setTimeout(() => {
-         let jumpUrl = inputValue;
-         // 自动补全协议
-         if (!jumpUrl.startsWith('http://') && !jumpUrl.startsWith('https://')) {
-           jumpUrl = 'https://' + jumpUrl;
+         let targetUrl;
+         // 判断是否为网址
+         if (isUrl(inputValue)) {
+           // 网址：自动补全https并跳转
+           targetUrl = inputValue.startsWith('http') ? inputValue : 'https://' + inputValue;
+         } else {
+           // 非网址：必应搜索
+           targetUrl = `https://cn.bing.com/search?q=${encodeURIComponent(inputValue)}`;
          }
-         window.open(jumpUrl, '_blank');
+         window.open(targetUrl, '_blank');
 
          loadIcon.classList.add('hidden');    
          successIcon.classList.remove('hidden');    
-         text.textContent = '跳转成功';
+         text.textContent = '成功';
          
          setTimeout(() => {    
            successIcon.classList.add('hidden');    
            searchIcon.classList.remove('hidden');    
            btn.disabled = false;    
            btn.classList.remove('opacity-70', 'cursor-not-allowed');    
-           text.textContent = '网址跳转';    
+           text.textContent = '智能跳转';    
          }, 1000);    
        }, 1000);    
      }
 
-     // 回车跳转
+     // 回车触发
      document.getElementById('searchInput').addEventListener('keydown', function(e) { 
        if (e.key === 'Enter') { 
          handleSearch(); 
