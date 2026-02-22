@@ -1,3 +1,10 @@
+/*
+ * 欢迎您接入初源系统。
+ * 本文件（mine2.js）：扫雷游戏核心逻辑。
+ * 体验端：https://originallyxs.us.ci/mine.html
+ * 我们采用将代码注释掉的方式删除代码，并在后方标注删除人名称。
+ */
+
 // 获取DOM元素
 function c(t) {
     return document.getElementById(t);
@@ -150,9 +157,10 @@ function J() {
 // 游戏结果上报
 function K() {
     var e, t;
-    3 < n && o < 20 || (t = "B" + (e = ht()) + "c3/" + n + "" + o + "" + V, 3 < n && (t += "" + m + "" + v + "" + r), N(app, t, function(t) {
-        "" == e && 1 < t.length && (dt = t, c("uid").innerHTML = t, localStorage.setItem("uid", t));
-    }));
+    // 3 < n && o < 20 || (t = "B" + (e = ht()) + "c3/" + n + "" + o + "" + V, 3 < n && (t += "" + m + "" + v + "" + r), N(app, t, function(t) {
+        // "" == e && 1 < t.length && (dt = t, c("uid").innerHTML = t, localStorage.setItem("uid", t));
+    // }));
+    // 删除者：遥刃（1668966051）
 }
 
 // 数字绘制（剩余雷数/时间）
@@ -324,10 +332,11 @@ function start() {
 var L, e, mt, vt, dt = null;
 
 // 获取用户ID/昵称
-function ht() {
-    var t;
-    return null != dt ? dt : null == (t = null != (t = localStorage.getItem("nick")) && "" != t ? t : localStorage.getItem("uid")) ? "" : t;
-}
+// function ht() {
+    // var t;
+    // return null != dt ? dt : null == (t = null != (t = localStorage.getItem("nick")) && "" != t ? t : localStorage.getItem("uid")) ? "" : t;
+// }
+// 删除人：不知道（1668966051）
 
 // 棋盘尺寸初始化（初级/中级/高级/自适应/自定义）
 function _123(t) {
