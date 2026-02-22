@@ -274,7 +274,7 @@ function saf() {
 function ft() {
     it(), _ = X = 0, w = localStorage.getItem("_mp1"), S = localStorage.getItem("_mp2"), M = localStorage.getItem("tpn"), x = localStorage.getItem("opn"), null == (k = parseInt(localStorage.getItem("af"))) && (k = af0);
     var t = 25 * m;
-    c("p42").style.width = 4 + t + "px", D.width = t, D.height = 25 * v, c("face").src = fgf[0];
+    c("paf").style.width = 4 + t + "px", D.width = t, D.height = 25 * v, c("face").src = fgf[0];
     for (var e = 0; e < m; e++) {
         for (var n = 0; n < v; n++) {
             R.drawImage(sgf[0], 25 * e, 25 * n);
