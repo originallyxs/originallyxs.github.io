@@ -382,10 +382,3 @@ var setr = function() {
         t = 0 == t ? (c("nick").value = localStorage.getItem("nick"), c("_rename").style.display = "block", c("setr").innerText = shou, 1) : (c("_rename").style.display = "none", c("setr").innerText = shez, 0);
     }
 }();
-
-// 昵称保存
-function rename() {
-    var t = c("nick").value.trim();
-    t.charCodeAt(0) < 65 ? alert(w1) : (localStorage.setItem("nick", t), c("uid").innerHTML = ht(), setr());
-}
-
