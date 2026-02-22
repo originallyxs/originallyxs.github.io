@@ -1,1 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>扫雷游戏网页版 - 初源联盟工作室</title>
+  <meta name="keywords" content="扫雷, minesweeper, 网页扫雷" />
+  <meta name="description" content="经典扫雷游戏网页版，适配电脑/手机，无需下载，支持多难度/自定义雷区，锻炼观察推理能力。" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    @font-face {   
+      font-family: 'CurrentFont';   
+      src: url('./fonts/currentFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'SerifFont';   
+      src: url('./fonts/serifFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'CodeFont';   
+      src: url('./fonts/codeFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'CodeFontItalic';   
+      src: url('./fonts/codeFontItalic.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    * {   
+      font-family: 'CurrentFont', sans-serif !important;   
+    }   
+    html, body {   
+      overflow-x: hidden;
+      overflow-y: auto;
+      touch-action: manipulation;   
+      height: 100%;   
+      margin: 0;   
+      background-size: cover;   
+      background-position: center;   
+      background-attachment: fixed;   
+      min-height: 100vh;   
+    }   
+    .serif, blockquote,h1,h2,h3,h4,h5,h6 {   
+      font-family: 'SerifFont', serif !important;   
+    }   
+    code, pre {   
+      font-family: 'CodeFont', monospace !important;   
+      font-style: normal !important;   
+    }   
+    code em, code i, pre em, pre i {   
+      font-family: 'CodeFontItalic', monospace !important;   
+      font-style: normal !important;   
+    }   
+    #loading-mask {   
+      position: fixed;   
+      inset: 0;   
+      z-index: 9999;   
+      display: flex;   
+      flex-direction: column; 
+      align-items: center;   
+      justify-content: center;   
+      transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);   
+      background: #ebfbee;   
+    }   
+    @media (prefers-color-scheme: dark) {   
+      #loading-mask {   
+        background: #0b6a1e;   
+      }
+      body {
+        --tw-bg-opacity: 1;
+        background-color: rgb(15 23 42 / var(--tw-bg-opacity)) !important;
+      }
+    } 
+    .loading-spinner {   
+      width: 40px;   
+      height: 40px;   
+      border: 3px solid #D3F9d8;   
+      border-top-color: #2f9e44;   
+      border-radius: 50%;   
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;   
+    } 
+    .loading-footer { 
+      position: absolute; 
+      bottom: 40px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      width: 340px; 
+      opacity: 0; 
+      transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1); 
+    } 
+    .loading-footer.show { 
+      opacity: 1; 
+    } 
+    @keyframes spin {   
+      to { transform: rotate(360deg); }   
+    }   
+    #loading-mask.fade-out {   
+      opacity: 0;   
+      pointer-events: none;   
+    }
+    /* 扫雷核心样式适配 */
+    #face{
+      border:2px solid #808080;
+      border-left-color: #fff;
+      border-top-color: #fff;
+      cursor: pointer;
+    }
+    #face:active{
+      border:2px solid #808080;
+      border-bottom:1px solid #808080; 
+      border-right:1px solid #808080; 
+    }
+    .pad{
+      border:2px solid #808080;
+      border-right-color: #fff;
+      border-bottom-color: #fff;
+    }
+    .clk{
+      text-decoration: underline;
+      cursor: pointer;
+      color: #2563eb;
+      @apply dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors;
+    }
+    canvas {
+      image-rendering: pixelated;
+    }
+  </style>
+  <!-- Tailwind 配置保留0.html的基础配置 -->
+  <script>
+    tailwind.config = {   
+      darkMode: 'media',   
+      theme: {   
+        colors: {   
+          green: {50:'#EBFBEE',100:'#D3F9D8',200:'#B2F2BB',300:'#8CE99A',400:'#69DB7C',500:'#51CF66',600:'#40C057',700:'#37B24D',800:'#2F9E44',900:'#2B8A3E'},   
+          white: '#fff', black: '#000', transparent: 'transparent'   
+        },
+        extend: {
+          boxShadow: {
+            'game': '0 0 0 2px #808080, 2px 2px 0 0 #808080',
+          }
+        }   
+      }   
+    } 
+    // 扫雷全局变量（3.html原生变量）
+    var shou="收起";
+    var shez="设置";
+    var w1="首字母不符合要求";
+    var app="aaa";
+    var af0=0;
+    var nif0=0;
+    var VER = "1.0.0";
+  </script>
+  <!-- 引入扫雷资源和核心逻辑 -->
+  <script src="./mine1.js"></script>
+  <script src="./mine2.js"></script>
+</head>
+<body oncontextmenu="return false;" class="bg-[url('./pictures/light_backdrop.jpg')] dark:bg-[url('./pictures/dark_backdrop.jpg')] text-gray-900 dark:text-white p-4">
+  <noscript>
+    <h1 style="text-align:center;" class="serif">初源联盟工作室 - 扫雷游戏</h1>
+    <h2 style="text-align:center" class="text-red-600 dark:text-red-400">本页面依赖 JavaScript 运行，请启用JavaScript或更换现代浏览器。</h2>
+  </noscript>
+
+  <!-- 0.html原生加载遮罩 -->
+  <div id="loading-mask">
+    <div class="loading-spinner"></div>
+    <div class="loading-footer" id="loadingFooter">
+      <img src="./pictures/index/light_footer.png" class="block dark:hidden w-full h-auto" onload="checkFooterImageLoaded()" alt="首次加载可能较慢，请耐心等待" />
+      <img src="./pictures/index/dark_footer.png" class="hidden dark:block w-full h-auto" onload="checkFooterImageLoaded()" alt="首次加载可能较慢，请耐心等待" />
+    </div>
+  </div>
+
+  <!-- 0.html原生头部 -->
+  <header class="fixed top-0 left-0 right-0 rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-4 shadow-sm z-50 mx-4 mt-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-center">
+      <h1 class="text-[clamp(1.2rem,3vw,1.8rem)] font-medium serif text-gray-900 dark:text-white">
+        初源联盟工作室
+      </h1>
+    </div>
+  </header>
+
+  <!-- 主内容区：融合扫雷所有功能，保留0.html卡片样式 -->
+  <main class="max-w-4xl mx-auto pt-24 pb-20">
+    <!-- 扫雷难度选择 -->
+    <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-6 shadow-xl mb-6">
+      <div class="text-center text-[clamp(1.2rem,3vw,1.5rem)] font-medium mb-4 serif">扫雷</div>
+      <div class="flex flex-wrap justify-center gap-4 text-base">
+        <a class=clk onclick="_123(1)">基础(9×9/10雷)</a>
+        <a class=clk onclick="_123(2)">中级(16×16/40雷)</a>
+        <a class=clk onclick="_123(3)">专家(自适应/99雷)</a>
+        <a class=clk onclick="_123(4)">满屏(适配屏幕)</a>
+        <a class=clk onclick="_123(5)">自定义雷区</a>
+      </div>
+      <!-- 自定义雷区面板 -->
+      <div id=custom style="display:none;flex flex-col gap-3 mt-4 text-center">
+        <div class="flex justify-center gap-4 items-center">
+          <span>横向：</span>
+          <input id=hm type=number value=40 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
+          <span>纵向：</span>
+          <input id=vm type=number value=24 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
+          <span>雷数：</span>
+          <input id=mm type=number value=199 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
+          <button onclick="udf()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition-colors">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 扫雷游戏核心画布区域 -->
+    <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-6 shadow-xl mb-6 flex flex-col items-center">
+      <table class="bg-gray-300 dark:bg-gray-700 rounded-lg p-3 mb-3">
+        <tr>
+          <td style="padding:9px;">
+            <table id=p42 class=pad style="height:34px; background: #cccccc dark:bg-gray-600 rounded">
+              <tr class="flex items-center justify-between px-2">
+                <td><canvas id="rm" height=23 width=39 class="pad"></canvas></td>
+                <td align=center onmouseup="_45()" style="padding:0 8px 0 8px"><img id="face" class="rounded"></td>
+                <td align=right><canvas id="es" height=23 width=39 class="pad"></canvas></td>
+              </tr>
+            </table>
+            <!-- 扫雷游戏主画布 -->
+            <canvas id="paf" class="pad mt-2 rounded" width=0 height=0></canvas>
+          </td>
+        </tr>
+      </table>
+      <!-- 成绩榜链接 -->
+      <a id=ss href=scores.htm class="clk text-lg mb-2">查看成绩榜</a>
+      <!-- 游戏快捷设置 -->
+      <div class="w-full flex justify-between items-center px-4 mt-2">
+        <div class="flex items-center gap-2">
+          <span>自动标雷</span>
+          <input type=checkbox checked id=af onclick="saf()" class="w-5 h-5 cursor-pointer">
+        </div>
+        <div class="flex items-center gap-2">
+          <span>夜间模式</span>
+          <input type="checkbox" id="bcolor" onclick="bcolor()" class="w-5 h-5 cursor-pointer">
+        </div>
+      </div>
+    </div>
+
+    <!-- 扫雷操作说明 -->
+    <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-6 shadow-xl mb-6">
+      <div class="text-[clamp(1.1rem,2vw,1.3rem)] font-medium serif mb-4">游戏操作说明</div>
+      <div class="text-sm leading-relaxed dark:text-gray-200">
+        第一次点击不会是雷。格子里的数字表示它周围有8个格子中有几个雷。游戏目标是找出所有雷，点到雷则游戏失败。点击表情按钮可重新开始游戏。<b class="text-green-700 dark:text-green-400">“二选一”留到最后可任选，需先清完其他方块</b>。
+        <br><br>
+        <b class="text-blue-700 dark:text-blue-400">电脑端：</b>鼠标右键点击未明方块，以小旗标记为雷，再点去除标记；标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围安全区域；鼠标左键点击无标记方块直接打开。
+        <a id=setm class=clk onclick="mouse2()">鼠标设置</a>
+        <!-- 鼠标设置面板 -->
+        <div id="_mouse" style="border:solid 1px #ccc dark:border-gray-600;display:none;padding:1rem;margin:0.5rem 0;border-radius:8px;backdrop-blur-[4px] bg-white/60 dark:bg-black/60">
+          鼠标起效时间点
+          <br><br>
+          左键
+          <div class="flex gap-4 mt-2">
+            <input type=radio name="_mp1" value="0" onclick="_save(0,0);">
+            <label>按下时</label>
+            <input type=radio name="_mp1" value="1" onclick="_save(0,1);">
+            <label>弹起时</label>
+          </div>
+          <br>
+          右键
+          <div class="flex gap-4 mt-2">
+            <input type=radio name="_mp2" value="0" onclick="_save(1,0);">
+            <label>按下时</label>
+            <input type=radio name="_mp2" value="1" onclick="_save(1,1);">
+            <label>弹起时</label>
+          </div>
+        </div>
+        <br><br>
+        <b class="text-purple-700 dark:text-purple-400">手机/平板端：</b>触屏点击方块标记为雷，再点去除标记；标记的雷数和数字匹配时，点击数字翻开周围安全区域；长按方块直接打开（可自定义为点击直开/点击三次打开）。
+        <a id=sett class=clk onclick="touch2()">触屏设置</a>
+        <!-- 触屏设置面板 -->
+        <div id="_touch" style="border:solid 1px #ccc dark:border-gray-600;display:none;padding:1rem;margin:0.5rem 0;border-radius:8px;backdrop-blur-[4px] bg-white/60 dark:bg-black/60">
+          <i>触击效果</i>
+          <div class="flex gap-4 mt-2">
+            <input type=radio name="tpn" value="0" checked onclick="_save(2,0);smore(0);">
+            <label>标记雷</label>
+            <input type=radio name="tpn" value="1" onclick="_save(2,1);smore(1);">
+            <label>直接打开</label>
+          </div>
+          <br>
+          <div id=thint style="display:none;padding-left:1rem;border-left:2px solid #808080">
+            <i>直开模式下的标记方法</i>
+            <br>长按方块
+          </div>
+          <div id=topen style="display:none;padding-left:1rem;border-left:2px solid #808080">
+            <i>标记模式下的打开方法</i>
+            <div class="flex gap-4 mt-2">
+              <input type=radio name="opn" value="0" checked onclick="_save(3,0)">
+              <label>长按</label>
+              <input type=radio name="opn" value="1" onclick="_save(3,1)">
+              <label>快点三次</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 游戏相关信息与拓展 -->
+    <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-6 shadow-xl mb-6">
+      <div class="text-[clamp(1.1rem,2vw,1.3rem)] font-medium serif mb-4">游戏相关</div>
+      <div class="text-sm leading-relaxed dark:text-gray-200 mb-4">
+        扫雷游戏起源于1973年的"方块"游戏，1992年微软在Windows 3.1中加入该游戏后风靡全球。玩扫雷可锻炼观察和推理能力，培养细心和耐心。
+        <a href=doc/jichudingshi.htm class="clk">基础定式攻略</a>
+        <br><br>
+        安卓手机连击放大问题：【设置】-【智能辅助】-【无障碍】-【放大手势】-关闭。
+        <br>
+        不标雷的玩法称为<b>盲扫</b>，是高阶玩法哦！
+      </div>
+      <!-- 其他小游戏链接 -->
+      <div class="mt-4">
+        <span>更多小游戏：</span>
+        <a href="plane/" class="clk">飞机大战</a> | 
+        <a href="falling/" class="clk">俄罗斯方块</a> | 
+        <a href="sudoku/" class="clk">数独</a> | 
+        <a href="defense/" class="clk">塔防</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- 0.html原生侧边功能链接 -->
+  <a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-40 shadow-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0">
+      <title>编辑此页面</title>
+      <g id="pen_line" fill="none">
+        <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path>
+        <path fill="currentColor" d="M12.138 4.538a2 2 0 0 1 2.031.328l.126.115 4.724 4.724a2 2 0 0 1 .5 1.997l-.057.16-2.365 5.913a1.999 1.999 0 0 1-1.605 1.24l-5.079.635c-.13.015-.268.034-.41.056l-.444.072-.232.042-.723.14-.495.106-.745.167-.955.228-1.552.396-.646.174a1.01 1.01 0 0 1-1.265-1.134l.034-.146.295-1.112.264-1.048.228-.955.167-.745.105-.496.141-.722.08-.457.064-.428.66-5.28a1.999 1.999 0 0 1 1.09-1.536l.151-.069zm.742 1.857L6.968 8.76l-.584 4.672-.048.396a26.886 26.886 0 0 1-.385 2.192l-.171.786 3.288-3.288a2 2 0 1 1 1.414 1.414L7.194 18.22l.392-.087.784-.165a27.455 27.455 0 0 1 1.473-.26l5.397-.676 2.365-5.912zm2.363-3.294a1 1 0 0 1 1.32-.084l.094.084 4.242 4.242a1 1 0 0 1-1.32 1.498l-.094.084-4.242-4.242a1 1 0 0 1 0-1.414"></path>
+      </g>
+    </svg>
+    编辑此页面
+  </a>
+  <a href="https://forms.cloud.microsoft/r/B2VQSTyAZL" target="_blank" class="fixed right-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex flex-row-reverse items-center gap-2 transition-all z-40 shadow-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0">
+      <title>add_line</title>
+      <g id="add_line" fill="none">
+        <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path>
+        <path fill="currentColor" d="M11 20a1 1 0 1 0 2 0v-7h7a1 1 0 1 0 0-2h-7V4a1 1 0 1 0-2 0v7H4a1 1 0 1 0 0 2h7z"></path>
+      </g>
+    </svg>
+    申请加入我们
+  </a>
+
+  <!-- 0.html原生页脚 -->
+  <footer class="fixed bottom-0 left-0 right-0 rounded-[12px] backdrop-blur-[6px] bg-white/50 dark:bg-black/30 py-3 text-center text-gray-800 dark:text-white text-sm z-40 mx-4 mb-4">
+    <div>
+      Copyright © 2024-
+      <script>document.write(new Date().getFullYear())</script>
+      OriginallyX Coalition Studio.
+      <br />
+      All rights reserved.
+    </div>
+  </footer>
+
+  <!-- 脚本整合：0.html原生加载逻辑 + 3.html扫雷初始化逻辑 -->
+  <script>
+    // 0.html原生加载遮罩逻辑
+    let footerImageLoaded = false; 
+    function checkFooterImageLoaded() { 
+      if(!footerImageLoaded) { 
+        footerImageLoaded = true; 
+        document.getElementById('loadingFooter').classList.add('show'); 
+      } 
+    } 
+    window.addEventListener('load', function () {   
+      setTimeout(() => {   
+        const mask = document.getElementById('loading-mask');   
+        mask.classList.add('fade-out');   
+        setTimeout(() => mask.remove(), 800);   
+      }, 200);
+    });   
+
+    // 扫雷初始化（页面加载完成后执行）
+    window.onload = function() {
+      night();
+      start();
+    }
+  </script>
+</body>
+</html>
 
