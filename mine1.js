@@ -22,7 +22,7 @@ sgf[3].src = "./mine/c3.png";
 var dgf = [];
 for(var i = 0; i < 10; i++) {
   dgf[i] = new Image();
-  dgf[i].src = "./mine/d" + i + ".png";
+  dgf[i].src = "./mine/b" + i + ".png";
 }
 
 // bgf 对应 a0~a8：棋盘数字0~8
