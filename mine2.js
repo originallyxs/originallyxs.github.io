@@ -5,7 +5,7 @@
  * 体验端：https://originallyxs.us.ci/mine.html
  * 我们采用将代码注释掉的方式删除代码，并在后方标注删除人名称。
  * 下一个版本将会把所有注释代码删除。
- * 版本号 3.0.0
+ * 版本号 3.1.0
  */
 // 获取DOM元素
 function c(t) {
@@ -135,16 +135,14 @@ function s(t, e) {
     return F(t, e), 0;
 }
 
-// 游戏胜利处理
-function J() {
-    var t, e, n;
-    for (V = !k && $ ? 2 : k, l = 2, it(), e = 0; e < v; e++) {
-        for (t = 0; t < m; t++) {
-            0 == (n = d[e][t])[0] : A(t, e));
-        }
-    }
-    0 != C , E(r), c("face").src = fgf[1];
-}
+function J(){
+var t,e,n;
+for(V=!k&&$?2:k,l=2,it(),e=0;e<v;e++){
+for(t=0;t<m;t++){
+0==(n=d[e][t])[0]&&A(t,e);
+}}
+E(r),c("face").src=fgf[1];}
+
 
 
 // 数字绘制（剩余雷数/时间）
@@ -391,21 +389,3 @@ function rename() {
     t.charCodeAt(0) < 65 ? alert(w1) : (localStorage.setItem("nick", t), c("uid").innerHTML = ht(), setr());
 }
 
-// 夜间模式切换
-function bcolor() {
-    var t = document.body.style,
-        e = document.getElementsByTagName("a");
-    if (c("bcolor").checked) {
-        localStorage.setItem("night", 1), t.backgroundColor = "black", t.color = "silver";
-        for (var n = 0; n < e.length; n++) e[n].style.color = "silver";
-    } else {
-        localStorage.setItem("night", 0), t.backgroundColor = "#f7f7f0", t.color = "";
-        for (n = 0; n < e.length; n++) e[n].style.color = "";
-    }
-}
-
-// 夜间模式初始化
-function night() {
-    var t = localStorage.getItem("night");
-    null == t && (t = nif0), c("bcolor").checked = parseInt(t), bcolor();
-}
