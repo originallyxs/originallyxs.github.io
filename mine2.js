@@ -151,7 +151,8 @@ function J() {
             0 == (n = d[e][t])[0] && (1 != n[1] ? It(1, t, e) : A(t, e));
         }
     }
-    0 != C && It(2, t, e), E(r), c("face").src = fgf[1], K();
+    0 != C && It(2, t, e), E(r), c("face").src = fgf[1], 
+    // K();
 }
 
 // 游戏结果上报
