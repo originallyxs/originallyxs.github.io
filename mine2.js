@@ -374,11 +374,3 @@ var touch2 = function() {
         Y("opn"), smore(t), e = 0 == e ? (c("_touch").style.display = "block", c("sett").innerText = shou, 1) : (c("_touch").style.display = "none", c("sett").innerText = shez, 0);
     }
 }();
-
-// 重命名面板切换
-var setr = function() {
-    var t = 0;
-    return function() {
-        t = 0 == t ? (c("nick").value = localStorage.getItem("nick"), c("_rename").style.display = "block", c("setr").innerText = shou, 1) : (c("_rename").style.display = "none", c("setr").innerText = shez, 0);
-    }
-}();
