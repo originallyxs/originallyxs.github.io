@@ -338,7 +338,7 @@ function _123(t) {
     } else if (3 == t) {
         r = 99, v = mt < e ? (m = 30, 16) : (m = 16, 30), L = 480;
     } else if (4 == t) {
-        m = parseInt((e - 18) / 25), v = parseInt((mt - 54) / 25), r = 480 <= (L = m * v) ? .20625 * L : L * L / 5760 + L / 8, r = parseInt(r);
+        m = parseInt((e - 18) / 25), v = parseInt((mt - 144) / 25), r = 480 <= (L = m * v) ? .20625 * L : L * L / 5760 + L / 8, r = parseInt(r);
     } else {
         if (5 != t) return;
         m = parseInt(c("hm").value), v = parseInt(c("vm").value), L = m * v, r = parseInt(c("mm").value), L < r && (r = L);
