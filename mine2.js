@@ -12,16 +12,6 @@ function c(t) {
     return document.getElementById(t);
 }
 
-// 网络请求方法
-function N(t, e, n) {
-    var o = new XMLHttpRequest;
-    o.open(null != e ? "POST" : "GET", t, !0);
-    o.onreadystatechange = function() {
-        4 != o.readyState || 200 != o.status && 304 != o.status || n(o.responseText);
-    };
-    o.send(e);
-}
-
 // 全局变量定义
 var m, v, r, l, a, V, n, d = [],
     h = [-1, -1, -1, 0, 0, 1, 1, 1, 0],
@@ -147,20 +137,15 @@ function s(t, e) {
 
 // 游戏胜利处理
 function J() {
-    var t, e, n;
-    for (V = !k && $ ? 2 : k, l = 2, it(), e = 0; e < v; e++) {
-        for (t = 0; t < m; t++) {
-            0 == (n = d[e][t])[0] && (1 != n[1] ? It(1, t, e) : A(t, e));
-        }
+  var t, e, n;
+  for (V = !k && $ ? 2 : k, l = 2, it(), e = 0; e < v; e++) {
+    for (t = 0; t < m; t++) {
+      0 == (n = d[e][t])[0] && A(t, e);
     }
-    0 != C && It(2, t, e), E(r), c("face").src = fgf[1], 
-    // K();
+  }
+  E(r), c("face").src = fgf[1];
 }
 
-// 游戏结果上报
-function K() {
-    var e, t;
-}
 
 // 数字绘制（剩余雷数/时间）
 function Q(t) {
@@ -328,7 +313,7 @@ function start() {
 }
 
 // 全局变量
-var L, e, mt, vt, dt = null;
+var L, e, mt, vt = null;
 
 // 棋盘尺寸初始化（初级/中级/高级/自适应/自定义）
 function _123(t) {
@@ -392,8 +377,3 @@ var touch2 = function() {
     }
 }();
 
-
-// 错误上报
-function It(t, e, n) {
-    N("bug.php", VER + ":" + t, function(t) {});
-}
