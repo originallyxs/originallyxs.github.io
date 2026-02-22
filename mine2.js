@@ -325,7 +325,8 @@ function start() {
     var t = localStorage.getItem("df5");
     null == t ? (c("hm").value = 15, c("vm").value = 15, c("mm").value = 20) : (t = t.split(";"), c("hm").value = t[0], c("vm").value = t[1], c("mm").value = t[2]);
     document.oncontextmenu = function() { return !1 }, document.onselectstart = function() { return !1 };
-    D = c("paf"), R = D.getContext("2d"), E = Q("rm"), H = Q("es"), _123(localStorage.getItem("ch7")), c("uid").innerHTML = ht();
+    D = c("paf"), R = D.getContext("2d"), E = Q("rm"), H = Q("es"), _123(localStorage.getItem("ch7")), 
+    // c("uid").innerHTML = ht();
 }
 
 // 全局变量
@@ -401,18 +402,19 @@ var touch2 = function() {
 }();
 
 // 重命名面板切换
-var setr = function() {
-    var t = 0;
-    return function() {
-        t = 0 == t ? (c("nick").value = localStorage.getItem("nick"), c("_rename").style.display = "block", c("setr").innerText = shou, 1) : (c("_rename").style.display = "none", c("setr").innerText = shez, 0);
-    }
-}();
+// var setr = function() {
+    // var t = 0;
+    // return function() {
+        // t = 0 == t ? (c("nick").value = localStorage.getItem("nick"), c("_rename").style.display = "block", c("setr").innerText = shou, 1) : 
+// (c("_rename").style.display = "none", c("setr").innerText = shez, 0);
+    // }
+// }();
 
 // 昵称保存
-function rename() {
-    var t = c("nick").value.trim();
-    t.charCodeAt(0) < 65 ? alert(w1) : (localStorage.setItem("nick", t), c("uid").innerHTML = ht(), setr());
-}
+// function rename() {
+    // var t = c("nick").value.trim();
+    // t.charCodeAt(0) < 65 ? alert(w1) : (localStorage.setItem("nick", t), c("uid").innerHTML = ht(), setr());
+// }
 
 // 夜间模式切换
 function bcolor() {
