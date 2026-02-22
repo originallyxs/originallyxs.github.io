@@ -1,8 +1,10 @@
 /*
+ * 写在开头
  * 欢迎您接入初源系统。
  * 本文件（mine2.js）：扫雷游戏核心逻辑。
  * 体验端：https://originallyxs.us.ci/mine.html
  * 我们采用将代码注释掉的方式删除代码，并在后方标注删除人名称。
+ * 下一个版本将会把所有注释代码删除。
  */
 
 // 获取DOM元素
@@ -158,10 +160,6 @@ function J() {
 // 游戏结果上报
 function K() {
     var e, t;
-    // 3 < n && o < 20 || (t = "B" + (e = ht()) + "c3/" + n + "" + o + "" + V, 3 < n && (t += "" + m + "" + v + "" + r), N(app, t, function(t) {
-        // "" == e && 1 < t.length && (dt = t, c("uid").innerHTML = t, localStorage.setItem("uid", t));
-    // }));
-    // 删除者：遥刃（1668966051）
 }
 
 // 数字绘制（剩余雷数/时间）
@@ -327,18 +325,10 @@ function start() {
     null == t ? (c("hm").value = 15, c("vm").value = 15, c("mm").value = 20) : (t = t.split(";"), c("hm").value = t[0], c("vm").value = t[1], c("mm").value = t[2]);
     document.oncontextmenu = function() { return !1 }, document.onselectstart = function() { return !1 };
     D = c("paf"), R = D.getContext("2d"), E = Q("rm"), H = Q("es"), _123(localStorage.getItem("ch7")), 
-    // c("uid").innerHTML = ht();
 }
 
 // 全局变量
 var L, e, mt, vt, dt = null;
-
-// 获取用户ID/昵称
-// function ht() {
-    // var t;
-    // return null != dt ? dt : null == (t = null != (t = localStorage.getItem("nick")) && "" != t ? t : localStorage.getItem("uid")) ? "" : t;
-// }
-// 删除人：不知道（1668966051）
 
 // 棋盘尺寸初始化（初级/中级/高级/自适应/自定义）
 function _123(t) {
@@ -402,39 +392,6 @@ var touch2 = function() {
     }
 }();
 
-// 重命名面板切换
-// var setr = function() {
-    // var t = 0;
-    // return function() {
-        // t = 0 == t ? (c("nick").value = localStorage.getItem("nick"), c("_rename").style.display = "block", c("setr").innerText = shou, 1) : 
-// (c("_rename").style.display = "none", c("setr").innerText = shez, 0);
-    // }
-// }();
-
-// 昵称保存
-// function rename() {
-    // var t = c("nick").value.trim();
-    // t.charCodeAt(0) < 65 ? alert(w1) : (localStorage.setItem("nick", t), c("uid").innerHTML = ht(), setr());
-// }
-
-// 夜间模式切换
-function bcolor() {
-    var t = document.body.style,
-        e = document.getElementsByTagName("a");
-    if (c("bcolor").checked) {
-        localStorage.setItem("night", 1), t.backgroundColor = "black", t.color = "silver";
-        for (var n = 0; n < e.length; n++) e[n].style.color = "silver";
-    } else {
-        localStorage.setItem("night", 0), t.backgroundColor = "#f7f7f0", t.color = "";
-        for (n = 0; n < e.length; n++) e[n].style.color = "";
-    }
-}
-
-// 夜间模式初始化
-function night() {
-    var t = localStorage.getItem("night");
-    null == t && (t = nif0), c("bcolor").checked = parseInt(t), bcolor();
-}
 
 // 错误上报
 function It(t, e, n) {
