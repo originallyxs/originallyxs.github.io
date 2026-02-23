@@ -126,12 +126,6 @@
       border-right-color: #fff;
       border-bottom-color: #fff;
     }
-    .clk{
-      text-decoration: underline;
-      cursor: pointer;
-      color: #2563eb;
-      @apply dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors;
-    }
     canvas {
       image-rendering: pixelated;
     }
@@ -139,8 +133,9 @@
 .clk {
   /* 原来的固定定位全部删掉，这行是关键 */
   /* 下面是你原来的样式原样转成 CSS */
+  cursor: pointer;
   backdrop-filter: blur(6px);
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.2);
   padding: 6px 12px;
   border-radius: 12px;
   font-size: 14px;
@@ -156,18 +151,18 @@
 /* 深色模式 */
 @media (prefers-color-scheme: dark) {
   .clk {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.2);
     color: white;
   }
 }
 
 /* hover */
 .clk:hover {
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.4);
 }
 @media (prefers-color-scheme: dark) {
   .clk:hover {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.4);
   }
 }
 
