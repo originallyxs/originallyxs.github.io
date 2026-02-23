@@ -371,23 +371,38 @@ canvas {
   </footer>
   <!-- 公共脚本 -->
   <script>
-    // 加载遮罩逻辑
-    let footerImageLoaded = false; 
-    function checkFooterImageLoaded() { 
-      if(!footerImageLoaded) { 
-        footerImageLoaded = true; 
-        document.getElementById('loadingFooter').classList.add('show'); 
-      } 
-    } 
-    window.addEventListener('load', function () {   
-      setTimeout(() => {   
-        const mask = document.getElementById('loading-mask');   
-        mask.classList.add('fade-out');   
-        setTimeout(() => mask.remove(), 800);   
-      }, 200);
-      // 初始化数独空格数输入框
-      document.getElementById('knum').value = init_num;
-    });   
+// 加载遮罩逻辑
+let footerImageLoaded = false; 
+function checkFooterImageLoaded() { 
+  if(!footerImageLoaded) { 
+    footerImageLoaded = true; 
+    document.getElementById('loadingFooter').classList.add('show'); 
+  } 
+} 
+// 核心：合并所有初始化逻辑，DOM加载完自动执行数独start（缺一不可）
+document.addEventListener('DOMContentLoaded', function() {
+  // 1. 初始化空格数输入框，强制绑定init_num
+  const knum = document.getElementById('knum');
+  knum.value = init_num = 30;
+  knum.oninput = function() { init_num = this.value; };
+  // 2. 延时容错，确保DOM完全加载，避免JS报错
+  setTimeout(() => {
+    // 3. 方法存在性判断，防止JS加载失败
+    if (typeof start === 'function') {
+      start(); // 自动执行数独初始化，渲染画布
+      console.log('数独初始化成功');
+    }
+  }, 150);
+  // 4. 加载遮罩消失逻辑
+  setTimeout(() => {
+    const mask = document.getElementById('loading-mask');
+    mask.classList.add('fade-out');
+    setTimeout(() => mask.remove(), 800);
+  }, 200);
+});
+// 站点分析脚本（保留，单独写，无嵌套）
+defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"f80643c2e2f740008d231e65f06249a4","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous">
+
   </script>
   <!-- 站点分析 -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"f80643c2e2f740008d231e65f06249a4","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
