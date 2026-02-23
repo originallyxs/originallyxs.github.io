@@ -147,25 +147,12 @@ input[type="checkbox"]:checked::after {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-}
-
-/* 单选框选中后的白色圆点 */
-input[type="radio"]:checked::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
-  background-color: white;
-  border-radius: 50%;
 }
 
 /* hover 状态 */
@@ -407,9 +394,9 @@ input[type="radio"]:focus-visible {
     <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-6 shadow-xl mb-6">
       <div class="text-[clamp(1.1rem,2vw,1.3rem)] font-medium serif mb-4">游戏相关</div>
       <div class="text-sm leading-relaxed dark:text-gray-200 mb-4">
-        扫雷游戏起源于1973年的"方块"游戏，1992年微软在Windows 3.1中加入该游戏后风靡全球。玩扫雷可锻炼观察和推理能力，培养细心和耐心。
+        扫雷游戏起源于 1973 年的"方块"游戏，1992 年微软在 Windows 3.1 中加入该游戏后风靡全球。玩扫雷可锻炼观察和推理能力，培养细心和耐心。
         <br>
-        不标雷的玩法称为<b>盲扫</b>，是高阶玩法哦！
+        不标雷的玩法称为<b class="serif">盲扫</b>，是高阶玩法哦！
       </div>
       <!-- 其他小游戏链接 -->
       <div class="mt-4">
