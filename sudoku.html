@@ -225,6 +225,45 @@ canvas {
     } 
     // 数独全局变量
     var init_num=30;
+/* 数独渲染核心样式（缺一不可） */
+:root {
+  --sudoku-light-bg: #ddddd9;
+  --sudoku-dark-bg: #15202b;
+  --sudoku-canvas-light: #ffffff;
+  --sudoku-canvas-dark: #222222;
+}
+/* 数独成功弹窗基础样式（固化显隐，覆盖所有冲突） */
+#info {
+  display: none !important;
+  z-index: 999 !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: rgba(70, 130, 180, 0.95) !important;
+  backdrop-filter: blur(6px) !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+  padding: 30px 50px !important;
+  text-align: center !important;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
+}
+/* 数独画布核心样式（原生宽高+CSS适配，缺一不可，覆盖扫雷canvas样式） */
+#canA, #canB {
+  image-rendering: auto !important;
+  touch-action: manipulation !important;
+  z-index: 10 !important;
+  background: var(--sudoku-canvas-light) !important;
+  border: 1px solid #eee !important;
+  border-radius: 4px !important;
+}
+@media (prefers-color-scheme: dark) {
+  #canA, #canB {
+    background: var(--sudoku-canvas-dark) !important;
+    border-color: #444 !important;
+  }
+}
+
   </script>
   <!-- 数独核心逻辑 -->
   <script src="./sudo1.js"></script>
