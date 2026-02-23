@@ -292,11 +292,11 @@ input[type="radio"]:focus-visible {
       <div id=custom style="display:none;flex flex-col gap-3 mt-4 text-center">
         <div class="flex justify-center gap-4 items-center">
           <span>横向：</span>
-          <input id=hm type=number value=40 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
+          <input id=hm type=number step=1 min=1 value=40 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
           <span>纵向：</span>
-          <input id=vm type=number value=24 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
+          <input id=vm type=number step=1 min=1 value=24 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
           <span>雷数：</span>
-          <input id=mm type=number value=199 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
+          <input id=mm type=number step=1 min=1 value=199 class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-16 text-center">
           <button onclick="udf()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition-colors">确定</button>
         </div>
       </div>
