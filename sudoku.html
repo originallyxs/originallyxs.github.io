@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=0.7" />
+  <title>数独游戏网页版 - 初源联盟工作室</title>
+  <meta name="keywords" content="数独,sudoku,网页数独" />
+  <meta name="description" content="经典数独游戏网页版，适配电脑/手机，无需下载，支持自定义空格数调节难度，锻炼逻辑推理能力。" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    @font-face {   
+      font-family: 'CurrentFont';   
+      src: url('./fonts/currentFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'SerifFont';   
+      src: url('./fonts/serifFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'CodeFont';   
+      src: url('./fonts/codeFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'CodeFontItalic';   
+      src: url('./fonts/codeFontItalic.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    * {   
+      font-family: 'CurrentFont', sans-serif !important;   
+    }   
+    html, body {   
+      overflow-x: hidden;
+      overflow-y: auto;
+      touch-action: manipulation;   
+      height: 100%;   
+      margin: 0;   
+      background-size: cover;   
+      background-position: center;   
+      background-attachment: fixed;   
+      min-height: 100vh;   
+    }   
+    .serif, blockquote,h1,h2,h3,h4,h5,h6,b,strong {   
+      font-family: 'SerifFont', serif !important;   
+    }   
+    code, pre {   
+      font-family: 'CodeFont', monospace !important;   
+      font-style: normal !important;   
+    }   
+    code em, code i, pre em, pre i {   
+      font-family: 'CodeFontItalic', monospace !important;   
+      font-style: normal !important;   
+    }   
+    #loading-mask {   
+      position: fixed;   
+      inset: 0;   
+      z-index: 9999;   
+      display: flex;   
+      flex-direction: column; 
+      align-items: center;   
+      justify-content: center;   
+      transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);   
+      background: #ebfbee;   
+    }   
+    @media (prefers-color-scheme: dark) {   
+      #loading-mask {   
+        background: #0b6a1e;   
+      }
+      body {
+        --tw-bg-opacity: 1;
+        background-color: rgb(15 23 42 / var(--tw-bg-opacity)) !important;
+      }
+    } 
+    .loading-spinner {   
+      width: 40px;   
+      height: 40px;   
+      border: 3px solid #D3F9d8;   
+      border-top-color: #2f9e44;   
+      border-radius: 50%;   
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;   
+    } 
+    .loading-footer { 
+      position: absolute; 
+      bottom: 40px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      width: 340px; 
+      opacity: 0; 
+      transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1); 
+    } 
+    .loading-footer.show { 
+      opacity: 1; 
+    } 
+    @keyframes spin {   
+      to { transform: rotate(360deg); }   
+    }   
+    #loading-mask.fade-out {   
+      opacity: 0;   
+      pointer-events: none;   
+    }
+/* 通用表单控件样式 */
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #22c55e; /* green-500 */
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+input[type="checkbox"] {
+  border-radius: 4px;
+}
+input[type="radio"] {
+  border-radius: 50%;
+}
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Ctitle%3Echeck_fill%3C%2Ftitle%3E%3Cg%20id%3D%22check_fill%22%20fill%3D%27none%27%20fill-rule%3D%27evenodd%27%3E%3Cpath%20d%3D%27M24%200v24H0V0zM12.593%2023.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023%200%20.029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023%200%200%200-.027.006l-.006.014-.034.614c0%20.012.007.02.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z%27%2F%3E%3Cpath%20fill%3D%27%23FFFFFFFF%27%20d%3D%27M21.546%205.111a1.5%201.5%200%200%201%200%202.121L10.303%2018.475a1.6%201.6%200%200%201-2.263%200L2.454%2012.89a1.5%201.5%200%201%201%202.121-2.121l4.596%204.596L19.424%205.111a1.5%201.5%200%200%201%202.122%200%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+input[type="checkbox"]:hover:not(:checked),
+input[type="radio"]:hover:not(:checked) {
+  border-color: #16a34a;
+}
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+}
+/* 按钮样式 */
+.clk {
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #1f2937;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  text-decoration:none;
+}
+@media (prefers-color-scheme: dark) {
+  .clk {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white;
+  }
+}
+.clk:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+@media (prefers-color-scheme: dark) {
+  .clk:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+}
+/* 数独成功弹窗样式 */
+#info {
+  display: none;
+  z-index: 99;
+  border-radius: 12px;
+  color: #FFF;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: fit-content;
+  height: fit-content;
+  padding: 30px 50px;
+  backdrop-filter: blur(6px);
+  background-color: rgba(70, 130, 180, 0.9);
+  text-align: center;
+}
+canvas {
+  image-rendering: auto;
+  touch-action: manipulation;
+}
+  </style>
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {   
+      darkMode: 'media',   
+      theme: {   
+        colors: {   
+          green: {50:'#EBFBEE',100:'#D3F9D8',200:'#B2F2BB',300:'#8CE99A',400:'#69DB7C',500:'#51CF66',600:'#40C057',700:'#37B24D',800:'#2F9E44',900:'#2B8A3E'},   
+          white: '#fff', black: '#000', transparent: 'transparent'   
+        },
+        extend: {
+          boxShadow: {
+            'game': '0 0 0 2px #808080, 2px 2px 0 0 #808080',
+          }
+        }   
+      }   
+    } 
+    // 数独全局变量
+    var init_num=30;
+  </script>
+  <!-- 数独核心逻辑 -->
+  <script src="./sudo.1.9.js"></script>
+</head>
+<body oncontextmenu="return false;" class="bg-[url('./pictures/light_backdrop.jpg')] dark:bg-[url('./pictures/dark_backdrop.jpg')] text-gray-900 dark:text-white p-4">
+  <noscript>
+    <h1 style="text-align:center;" class="serif">初源联盟工作室 - 数独游戏</h1>
+    <h2 style="text-align:center" class="text-red-600 dark:text-red-400">本页面依赖 JavaScript 运行，请启用JavaScript或更换现代浏览器。</h2>
+  </noscript>
+  <!-- 加载遮罩 -->
+  <div id="loading-mask">
+    <div class="loading-spinner"></div>
+    <div class="loading-footer" id="loadingFooter">
+      <img src="./pictures/index/light_footer.png" class="block dark:hidden w-full h-auto" onload="checkFooterImageLoaded()" alt="首次加载可能较慢，请耐心等待" />
+      <img src="./pictures/index/dark_footer.png" class="hidden dark:block w-full h-auto" onload="checkFooterImageLoaded()" alt="首次加载可能较慢，请耐心等待" />
+    </div>
+  </div>
+  <!-- 顶部导航 -->
+  <header class="fixed top-0 left-0 right-0 rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-4 shadow-sm z-20">
+    <div class="max-w-7xl mx-auto flex items-center justify-center">
+      <h1 class="text-[clamp(1.2rem,3vw,1.8rem)] font-medium serif text-gray-900 dark:text-white">
+        初源联盟工作室
+      </h1>
+    </div>
+  </header>
+  <!-- 主内容区 -->
+  <main class="max-w-4xl mx-auto pt-24 pb-20">
+    <!-- 数独标题与难度设置 -->
+    <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-6 shadow-xl mb-6">
+      <div class="text-center text-[clamp(1.2rem,3vw,1.5rem)] font-medium mb-6 serif">数独</div>
+      <div class="flex flex-wrap justify-center gap-4 items-center text-base">
+        <span class="serif">空格数：</span>
+        <input id="knum" type="number" step="1" min="1" max="80" value="30" class="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-black/80 w-20 text-center">
+        <button onclick="start();" id="startbtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors serif">
+          开始游戏
+        </button>
+        <div class="ml-4">
+          <span>夜间模式</span>
+          <input type="checkbox" id="bcolor" onclick="redraw()" class="w-5 h-5 cursor-pointer ml-2">
+        </div>
+      </div>
+    </div>
+    <!-- 数独游戏核心画布区域 -->
+    <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-8 shadow-xl mb-6 flex flex-col items-center">
+      <canvas id="canA" class="mb-4"></canvas>
+      <canvas id="canB"></canvas>
+    </div>
+    <!-- 数独规则说明 -->
+    <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-6 shadow-xl mb-6">
+      <div class="text-[clamp(1.1rem,2vw,1.3rem)] font-medium serif mb-4">游戏规则与玩法</div>
+      <div class="text-sm leading-relaxed dark:text-gray-200">
+        格子数为9×9，由9个3×3的九宫格组成，每个小格子需填入数字1到9。<br>
+        <b class="text-green-700 dark:text-green-400">核心规则</b>：每一行、每一列不能有重复数字；每一个九宫格内不能有重复数字，所有空格填满即为成功。
+        <br><br>
+        <b class="text-blue-700 dark:text-blue-400">操作方法</b>：点击下方列表的数字或格子内的黑色数字，选定当前数字；点击空格填入该数字，再次点击则删除。
+        <br><br>
+        <b class="text-purple-700 dark:text-purple-400">数字颜色</b>：人工填入的数字为绿色（夜间模式下为黄色），橙色为系统已完成数字。
+        <br><br>
+        可通过设置空格数调节游戏难度（空格数越多难度越高），本站数独目前不保证唯一解。数独名称由日本人鍜治真起确定并推广至全世界。
+      </div>
+    </div>
+    <!-- 其他小游戏链接 -->
+    <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-6 shadow-xl">
+      <div class="text-[clamp(1.1rem,2vw,1.3rem)] font-medium serif mb-4">更多小游戏</div>
+      <div class="flex flex-wrap justify-center gap-4 text-base">
+        <a href="plane/" class="clk">飞机大战</a>
+        <a href="falling/" class="clk">俄罗斯方块</a>
+        <a href="mine.html" class="clk">扫雷</a>
+        <a href="defense/" class="clk">塔防</a>
+      </div>
+    </div>
+  </main>
+  <!-- 侧边功能链接 -->
+  <a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-40 shadow-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0">
+      <title>编辑此页面</title>
+      <g id="pen_line" fill="none">
+        <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path>
+        <path fill="currentColor" d="M12.138 4.538a2 2 0 0 1 2.031.328l.126.115 4.724 4.724a2 2 0 0 1 .5 1.997l-.057.16-2.365 5.913a1.999 1.999 0 0 1-1.605 1.24l-5.079.635c-.13.015-.268.034-.41.056l-.444.072-.232.042-.723.14-.495.106-.745.167-.955.228-1.552.396-.646.174a1.01 1.01 0 0 1-1.265-1.134l.034-.146.295-1.112.264-1.048.228-.955.167-.745.105-.496.141-.722.08-.457.064-.428.66-5.28a1.999 1.999 0 0 1 1.09-1.536l.151-.069zm.742 1.857L6.968 8.76l-.584 4.672-.048.396a26.886 26.886 0 0 1-.385 2.192l-.171.786 3.288-3.288a2 2 0 1 1 1.414 1.414L7.194 18.22l.392-.087.784-.165a27.455 27.455 0 0 1 1.473-.26l5.397-.676 2.365-5.912zm2.363-3.294a1 1 0 0 1 1.32-.084l.094.084 4.242 4.242a1 1 0 0 1-1.32 1.498l-.094.084-4.242-4.242a1 1 0 0 1 0-1.414"></path>
+      </g>
+    </svg>
+    编辑此页面
+  </a>
+  <a href="https://forms.cloud.microsoft/r/B2VQSTyAZL" target="_blank" class="fixed right-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex flex-row-reverse items-center gap-2 transition-all z-40 shadow-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0">
+      <title>add_line</title>
+      <g id="add_line" fill="none">
+        <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path>
+        <path fill="currentColor" d="M11 20a1 1 0 1 0 2 0v-7h7a1 1 0 1 0 0-2h-7V4a1 1 0 1 0-2 0v7H4a1 1 0 1 0 0 2h7z"></path>
+      </g>
+    </svg>
+    申请加入我们
+  </a>
+  <!-- 数独成功弹窗 -->
+  <div id="info">
+    <div style="font-size:3rem;line-height:4rem;" class="serif">成功</div>
+    <input type="button" value=" 确定 " onclick="ok();" class="bg-white/90 text-gray-800 hover:bg-white px-6 py-2 rounded-lg mt-2 transition-colors">
+  </div>
+  <!-- 页脚 -->
+  <footer class="fixed bottom-0 left-0 right-0 rounded-[12px] backdrop-blur-[6px] bg-white/50 dark:bg-black/30 py-3 text-center text-gray-800 dark:text-white text-sm z-20">
+    <div>
+      Copyright © 2024-<script>document.write(new Date().getFullYear())</script> OriginallyX Coalition Studio.
+      <br />
+      All rights reserved.
+    </div>
+  </footer>
+  <!-- 公共脚本 -->
+  <script>
+    // 加载遮罩逻辑
+    let footerImageLoaded = false; 
+    function checkFooterImageLoaded() { 
+      if(!footerImageLoaded) { 
+        footerImageLoaded = true; 
+        document.getElementById('loadingFooter').classList.add('show'); 
+      } 
+    } 
+    window.addEventListener('load', function () {   
+      setTimeout(() => {   
+        const mask = document.getElementById('loading-mask');   
+        mask.classList.add('fade-out');   
+        setTimeout(() => mask.remove(), 800);   
+      }, 200);
+      // 初始化数独空格数输入框
+      document.getElementById('knum').value = init_num;
+    });   
+  </script>
+  <!-- 站点分析 -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"f80643c2e2f740008d231e65f06249a4","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
