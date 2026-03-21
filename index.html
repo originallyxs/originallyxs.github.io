@@ -228,6 +228,13 @@
     });   
 
     function handleRemind() {   
+      clickCount++;
+      if (clickCount === 7) {
+        window.open('https://www.bilibili.com/video/BV1kx411S7MP', '_blank'); // 国内B站官方版
+        clickCount = 0;
+        return;
+      }
+
       const btn = document.getElementById('remindButton');   
       const text = document.getElementById('remindBtnTxt');   
       const playIcon = document.getElementById('playIcon');   
