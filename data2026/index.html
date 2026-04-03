@@ -1,0 +1,1617 @@
+<!-- 
+    【写在开头】
+    Licensed under MIT
+    Made by OriginallyX Coalition Studio
+    2026-4-3 Latest Update
+    All Rights Reserved
+    ====================
+    本软件以笔记软件的名义，在某些场合保护使用者安全地做一些需要设备的本身不合管理员规定但合法的事情。
+    ====================
+    相较于 2025 版的更新：
+        1. [Star] 此后可以离线使用本软件；
+        2. [Important] 此后的本系列软件将一律使用 MDUI 1 制作；
+        3. [New] 笔记页面支持Markdown；
+        4. [New] 大部分功能无需预登录。
+    ====================
+    本软件可能将会连续更新16年。
+ -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
+    <meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="lib/mdui-1/css/mdui.min.css">
+    <!-- 国内BootCDN 高速加载marked -->
+    <script src="scripts/marked.js"></script>
+    <script src="lib/jq.js"></script>
+    <!-- XSS防护配置 -->
+    <script>
+        marked.setOptions({
+            sanitize: true,
+            breaks: true,
+            gfm: true,
+            tables: true,
+            linkify: true,
+            typographer: true
+        });
+    </script>
+    <style>
+        /* 取消全局user-select禁用，仅对非交互元素禁止选择 */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .nav,
+        #topNavMain,
+        #topNavSub,
+        #bottomNav,
+        .mdui-fab {
+            user-select: none;
+        }
+
+        #previewContent {
+            user-select: text;
+        }
+
+        /* 所有页面默认隐藏，相对定位承载内容 */
+        .nav {
+            display: none;
+            position: relative;
+            min-height: calc(100vh - 120px);
+            padding: 16px 0;
+        }
+
+        /* 仅当前页面显示 */
+        .nav.current {
+            display: block;
+        }
+
+        /* 全局统一动效：所有元素0.5s ease-in-out，完全同步触发/结束 */
+        .danrudanchu,
+        #pageContainer,
+        #bottomNav,
+        [class*="fab-tr-"],
+        #saveFab,
+        #topNavMain,
+        #topNavSub {
+            transition: all 0.5s ease-in-out !important;
+        }
+
+        /* 原有动效类基础样式保留 */
+        .danrudanchu {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
+        /* 底部导航隐藏样式 */
+        #bottomNav.nav-hide {
+            opacity: 0 !important;
+            transform: translateY(100%) !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        /* 整页容器：核心淡入淡出 */
+        #pageContainer {
+            width: 100%;
+            opacity: 1;
+        }
+
+        #pageContainer.fade-out {
+            opacity: 0;
+        }
+
+        /* Fab通用样式：固定定位+高层级防遮挡 */
+        .mdui-fab-up {
+            z-index: 999;
+            bottom: 80px;
+            /* 1-4页防底部导航遮挡 */
+        }
+
+        /* Fab删除/清空按钮专用：右移100px，统一样式 */
+        .fab-delete {
+            right: 100px;
+            z-index: 999;
+        }
+
+        /* 双导航栏核心样式：完全重叠，top:0贴顶 */
+        #topNavMain,
+        #topNavSub {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 998;
+            /* 低于Fab，高于页面内容 */
+        }
+
+        button {
+            border: none !important;
+            outline: none !important;
+        }
+
+        /* 导航栏隐藏样式【核心修改】：主导航向上移出屏幕(-100%)，透明+不可点击 */
+        .nav-hide-top {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transform: translateY(-100%) !important;
+        }
+
+        /* 编辑页文本域自适应高度 - 适配MDUI行高 */
+        #noteContent {
+            min-height: 200px;
+            line-height: 1;
+            padding: 4px;
+        }
+
+        /* 预览内容排版优化 - 基础样式，继承MDUI typo */
+        #previewContent {
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1;
+        }
+
+        /* 【新增】第一页笔记卡片容器：网格布局，适配移动端 */
+        .notes-card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill);
+            gap: 16px;
+            width: 100%;
+        }
+
+        /* 【新增】单笔记卡片样式：MDUI风格，hover轻微上浮，适配点击交互 */
+        .note-card {
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            padding: 4px;
+        }
+
+        /* 【新增】卡片内部内容样式 */
+        .note-card__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .note-card__title {
+            font-size: 16px;
+            font-weight: 500;
+            max-width: 70%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .note-card__time {
+            font-size: 12px;
+            color: #757575;
+        }
+
+        .note-card__preview {
+            font-size: 14px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+
+        /* Markdown预览样式：完全适配MDUI风格 - 核心改造 */
+        #previewContent h1,
+        #previewContent h2,
+        #previewContent h3,
+        #previewContent h4,
+        #previewContent h5,
+        #previewContent h6 {
+            margin: 24px 0 16px;
+            font-weight: 500;
+            line-height: 1;
+            color: inherit;
+        }
+
+        #previewContent h1 {
+            font-size: 24px;
+        }
+
+        #previewContent h2 {
+            font-size: 20px;
+        }
+
+        #previewContent h3 {
+            font-size: 18px;
+        }
+
+        #previewContent h4,
+        #previewContent h5,
+        #previewContent h6 {
+            font-size: 16px;
+        }
+
+        #previewContent p {
+            margin: 16px 0;
+        }
+
+        #previewContent ul,
+        #previewContent ol {
+            margin: 16px 0 16px 24px;
+            padding: 0;
+        }
+
+        #previewContent li {
+            margin: 8px 0;
+        }
+
+        /* MDUI浅灰背景+主色左边框，适配MDUI卡片内边距 */
+        #previewContent blockquote {
+            border-left: 4px solid #009688;
+            padding: 12px 16px;
+            margin: 16px 0;
+            background: #f5f5f5;
+            border-radius: 4px;
+            line-height: 1;
+        }
+
+        /* 代码行内样式：MDUI浅灰+4px圆角，和原生组件一致 */
+        #previewContent code {
+            padding: 2px 6px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', 'Monospace', 'Microsoft Yahei UI';
+            font-size: 0.95em;
+            color: #d32f2f;
+        }
+
+        /* 代码块：MDUI浅灰+8px圆角，适配卡片内边距，原生滚动 */
+        #previewContent pre {
+            padding: 16px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1;
+        }
+
+        #previewContent pre code {
+            padding: 0;
+            background: none;
+            color: inherit;
+        }
+
+        /* 表格：MDUI原生边框色，适配排版 */
+        #previewContent table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 24px 0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #previewContent th,
+        #previewContent td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        #previewContent th {
+            background: #fafafa;
+            font-weight: 500;
+        }
+
+        /* 分割线：MDUI原生边框色，和卡片内部分割线一致 */
+        #previewContent hr {
+            margin: 24px 0;
+            border: 0;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+
+<body class="mdui-theme-primary-indigo mdui-theme-accent-indigo mdui-appbar-with-toolbar mdui-bottom-nav-fixed">
+    <!-- 主导航栏：1-4页显示，5-9页向上移出屏幕隐藏 -->
+    <div id="topNavMain" class="mdui-appbar danrudanchu">
+        <div class="mdui-toolbar mdui-color-theme">
+            <div class="mdui-toolbar-item mdui-typo-title">Data2026</div>
+        </div>
+    </div>
+    <!-- 副导航栏：5-9页显示，1-4页隐藏（带返回键） -->
+    <div id="topNavSub" class="mdui-appbar danrudanchu nav-hide-top">
+        <div class="mdui-toolbar mdui-color-theme">
+            <button id="topBackBtn" class="mdui-toolbar-item mdui-btn mdui-btn-icon mdui-ripple" onclick="nav(1)">
+                <i class="mdui-icon material-icons">arrow_back</i>
+            </button>
+            <div class="mdui-toolbar-item mdui-typo-title">Data2026</div>
+        </div>
+    </div>
+
+    <!-- 整页容器：包含1-10页，同步淡入淡出 -->
+    <div class="mdui-container">
+        <div id="pageContainer">
+            <!-- 1页：自研笔记列表页 - 核心修改：列表项改为卡片布局，一个笔记一个卡片 -->
+            <div id="nav-1" class="nav current">
+                <div class="mdui-p-x-2 mdui-p-t-1 mdui-p-b-2">
+                    <h3 class="mdui-typo-title mdui-m-b-2">我的笔记</h3>
+                    <!-- 核心修改：移除mdui-list，改为卡片容器类 -->
+                    <div id="notesList" class="notes-card-container mdui-btn-raised mdui-ripple"
+                        style="padding:16px;border-radius:8px;"></div>
+                </div>
+                <!-- 新增笔记Fab：1-4页保留防遮挡类 -->
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed mdui-fab-up"
+                    id="add1">
+                    <i class="mdui-icon material-icons">add</i>
+                </button>
+                <script>
+                    // 1页专属逻辑：笔记卡片渲染+新增跳转（仅改渲染DOM，保留所有原有逻辑）
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const add1Btn = document.getElementById('add1');
+                        const notesList = document.getElementById('notesList');
+                        window.tempNoteId = window.tempNoteId || ''; // 初始化全局临时笔记ID（防覆盖）
+                        // 新增笔记：跳转编辑页+清空临时ID
+                        if (add1Btn) {
+                            add1Btn.onclick = () => {
+                                window.tempNoteId = '';
+                                nav(6);
+                            };
+                        }
+                        // 核心：渲染笔记卡片（按更新时间从新到旧，一个笔记一个卡片）
+                        function renderNotesList() {
+                            const notes = typeof window.notesManager === 'object' && window.notesManager.getNotes ? window.notesManager.getNotes() : [];
+                            notesList.innerHTML = '';
+                            // 空数据提示（适配卡片容器居中）
+                            if (notes.length === 0) {
+                                notesList.innerHTML = `
+                        <div class="mdui-center mdui-text-color-grey-500 mdui-p-y-12" style="grid-column: 1 / -1;">
+                            <h1 style="text-align:center;"><i class="mdui-icon material-icons" style="font-size:72px;">note_add</i></h1>
+                            暂无笔记，点击右下角+创建
+                        </div>
+                    `;
+                                return;
+                            }
+                            // 遍历渲染：一个笔记生成一个独立卡片
+                            notes.forEach(note => {
+                                // 创建卡片容器（替代原列表项）
+                                const cardItem = document.createElement('div');
+                                cardItem.className = 'note-card mdui-card mdui-shadow-1 mdui-p-3 mdui-ripple';
+                                cardItem.dataset.noteId = note.id; // 保留ID绑定，不改动原有逻辑
+
+                                // 提取内容第一行作为预览（按换行符分割，取第一行）
+                                const previewContent = note.content.split('\n')[0] || '无内容';
+
+                                // 卡片内部HTML结构：标题+时间 + 内容预览
+                                cardItem.innerHTML = `
+                        <div class="note-card__header mdui-typo">
+                            <div class="note-card__title mdui-typo-title-opacity">${note.title}</div>
+                            <div class="note-card__time mdui-typo-caption-opacity">${note.updateTime}</div>
+                        </div>
+                        <div class="note-card__preview mdui-typo-body-1-opacity">${previewContent}</div>
+                    `;
+
+                                // 保留原有点击逻辑：设置临时ID+跳转到预览页
+                                cardItem.onclick = () => {
+                                    window.tempNoteId = note.id;
+                                    nav(5);
+                                };
+
+                                notesList.appendChild(cardItem);
+                            });
+                        }
+                        // 切回1页时重新渲染，保证数据实时
+                        function reRenderNotesWhenBack() {
+                            if (document.querySelector('#nav-1')?.classList.contains('current')) {
+                                renderNotesList();
+                            }
+                        }
+                        // 初始化渲染
+                        renderNotesList();
+                        // 扩展nav函数（不重写，添加钩子）
+                        if (window.nav && !window.nav.hasHook1) {
+                            const originalNav = window.nav;
+                            window.nav = function (targetId) {
+                                originalNav(targetId);
+                                setTimeout(() => reRenderNotesWhenBack(), 500);
+                            };
+                            window.nav.hasHook1 = true; // 标记已添加钩子，防重复
+                        }
+                    });
+                </script>
+            </div>
+            <!-- 2-4页：保留原有结构，无任何修改 -->
+            <div id="nav-2" class="nav">
+                Page 2
+                <button
+                    class="danrudanchu mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-btn mdui-btn-raised"
+                    onclick="nav(11)">
+                    <i class="mdui-icon material-icons">arrow_forward</i>切到测试页</button>
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed mdui-fab-up"
+                    id="add2">
+                    <i class="mdui-icon material-icons">add</i>
+                </button>
+                <script>
+                    const add2Btn = document.getElementById('add2');
+                    if (add2Btn) {
+
+                    }
+                </script>
+            </div>
+            <div id="nav-3" class="nav">
+                <div class="mdui-p-x-2 mdui-p-t-1 mdui-p-b-2">
+                    <h3 class="mdui-typo-title mdui-m-b-2">我的资料</h3>
+                    <button class="mdui-btn mdui-btn-raised mdui-color-theme-accent mdui-ripple" onclick="nav(8);"><i
+                            class="mdui-icon material-icons">arrow_forward</i> 去登录</button>
+                </div>
+            </div>
+            <div id="nav-4" class="nav">
+                <div class="mdui-p-x-2 mdui-p-t-1 mdui-p-b-2">
+                    <h3 class="mdui-typo-title mdui-m-b-2">更多选项</h3>
+                    <div class="mdui-btn-raised mdui-ripple" style="padding:16px;border-radius:8px;">
+                        <div class="note-card mdui-card mdui-shadow-1 mdui-p-3 mdui-ripple" id="aboutcard"><i
+                                class="mdui-icon material-icons">info</i> 关于</div>
+                        <div class="note-card mdui-card mdui-shadow-1 mdui-p-3 mdui-ripple" id="devopt"><i
+                                class="mdui-icon material-icons">developer_mode</i> 开发者选项</div>
+                    </div>
+                </div>
+                <script>
+                </script>
+            </div>
+            <!-- 5页：自研笔记预览页 - MDUI风格适配+Markdown渲染+XSS防护 -->
+            <div id="nav-5" class="nav">
+                <div class="danrudanchu mdui-container mdui-p-x-3 mdui-p-t-4 mdui-p-b-10">
+                    <div id="emptyTip" class="mdui-center mdui-text-color-grey-500 mdui-p-y-10">
+                        暂无选中的笔记，前往首页选择
+                    </div>
+                    <!-- MDUI原生卡片样式，微调内边距 -->
+                    <div id="notepre" class="mdui-card mdui-shadow-1 mdui-p-0">
+                        <div id="notePreview" class="mdui-p-t-4 mdui-p-x-4 mdui-p-b-4">
+                            <h2 id="previewTitle" class="mdui-typo-headline mdui-m-b-3"></h2>
+                            <div class="mdui-typo-caption mdui-text-color-grey-600 mdui-m-b-4">
+                                创建时间：<span id="previewCreateTime"></span> |
+                                更新时间：<span id="previewUpdateTime"></span>
+                            </div>
+                            <hr class="mdui-m-y-3 mdui-p-x-2">
+                            <!-- 移除行内样式，纯继承MDUI typo -->
+                            <div class="mdui-typo">
+                                <div id="previewContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 预览页Fab：无底部导航，不添加防遮挡类 -->
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed"
+                    id="editFab5">
+                    <i class="mdui-icon material-icons">edit</i>
+                </button>
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed fab-delete"
+                    id="deleteFab5">
+                    <i class="mdui-icon material-icons">delete</i>
+                </button>
+                <script>
+                    // 5页专属逻辑：笔记预览+编辑跳转+删除（核心修改：Markdown渲染）
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const emptyTip = document.getElementById('emptyTip');
+                        const notePreview = document.getElementById('notePreview');
+                        const previewTitle = document.getElementById('previewTitle');
+                        const previewCreateTime = document.getElementById('previewCreateTime');
+                        const previewUpdateTime = document.getElementById('previewUpdateTime');
+                        const previewContent = document.getElementById('previewContent');
+                        const editFab5 = document.getElementById('editFab5');
+                        const deleteFab5 = document.getElementById('deleteFab5');
+                        // 核心：根据临时ID渲染预览内容（Markdown解析+XSS防护）
+                        function renderNotePreview() {
+                            if (!window.tempNoteId || !window.notesManager || typeof window.notesManager.getNoteById !== 'function') {
+                                emptyTip?.classList.remove('mdui-hidden');
+                                notePreview?.classList.add('mdui-hidden');
+                                return;
+                            }
+                            const note = window.notesManager.getNoteById(window.tempNoteId);
+                            if (!note) {
+                                emptyTip?.classList.remove('mdui-hidden');
+                                notePreview?.classList.add('mdui-hidden');
+                                return;
+                            }
+                            // 渲染预览基础数据
+                            emptyTip?.classList.add('mdui-hidden');
+                            notePreview?.classList.remove('mdui-hidden');
+                            previewTitle.innerText = note.title;
+                            previewCreateTime.innerText = note.createTime;
+                            previewUpdateTime.innerText = note.updateTime;
+                            // ========== marked 核心渲染行 ==========
+                            previewContent.innerHTML = marked.parse(note.content).replaceAll("\n", "\n");
+                            // ========================================
+                        }
+                        // 扩展nav函数（不重写，添加钩子）
+                        if (window.nav && !window.nav.hasHook5) {
+                            const originalNav = window.nav;
+                            window.nav = function (targetId) {
+                                originalNav(targetId);
+                                setTimeout(() => {
+                                    if (targetId === 5) renderNotePreview();
+                                }, 500);
+                            };
+                            window.nav.hasHook5 = true; // 标记已添加钩子，防重复
+                        }
+                        // 编辑Fab：跳转到编辑页
+                        if (editFab5) {
+                            editFab5.onclick = function () {
+                                if (!window.tempNoteId) {
+                                    mdui.snackbar({ message: '请先选择要编辑的笔记', position: 'right-bottom', timeout: 1500 });
+                                    return;
+                                }
+                                nav(6);
+                            };
+                        }
+                        // 删除Fab：删除笔记+返回首页+清空ID
+                        if (deleteFab5) {
+                            deleteFab5.onclick = function () {
+                                if (!window.tempNoteId) {
+                                    mdui.snackbar({ message: '请先选择要删除的笔记', position: 'right-bottom', timeout: 1500 });
+                                    return;
+                                }
+                                const isSuccess = window.notesManager.deleteNote(window.tempNoteId);
+                                if (isSuccess) {
+                                    mdui.snackbar({ message: '笔记删除成功', position: 'right-bottom', timeout: 1000 });
+                                    window.tempNoteId = ''; // 清空临时ID
+                                    nav(1);
+                                } else {
+                                    mdui.snackbar({ message: '笔记删除失败', position: 'right-bottom', timeout: 1500 });
+                                }
+                            };
+                        }
+                    });
+                </script>
+            </div>
+
+            <!-- 6页：自研笔记编辑页 - 保留所有原有修复/功能，无修改 -->
+            <div id="nav-6" class="nav">
+                <div class="danrudanchu mdui-container mdui-p-x-3 mdui-p-t-4 mdui-p-b-10">
+                    <!-- 标题输入框：增加失焦去空格 -->
+                    <div class="mdui-textfield mdui-textfield-floating-label mdui-m-b-4" style="width:100%;">
+                        <label class="mdui-textfield-label">笔记标题</label>
+                        <input type="text" id="noteTitle" class="mdui-textfield-input" autocomplete="off"
+                            onblur="this.value=this.value.trim()" />
+                    </div>
+                    <!-- 内容文本域：自适应高度+移动端优化+失焦去空格 -->
+                    <div class="mdui-textfield mdui-textfield-floating-label" style="width:100%;">
+                        <label class="mdui-textfield-label">笔记内容</label>
+                        <textarea id="noteContent" class="mdui-textfield-input" style="resize: none;"
+                            onblur="this.value=this.value.trim()"></textarea>
+                    </div>
+                </div>
+                <!-- 编辑页Fab：无底部导航，不添加防遮挡类 -->
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed"
+                    id="saveFab">
+                    <i class="mdui-icon material-icons">save</i>
+                </button>
+                <!-- 清空Fab：恢复delete图标，保留fab-delete类名 -->
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed fab-delete"
+                    id="clearFab6">
+                    <i class="mdui-icon material-icons">delete</i>
+                </button>
+                <script>
+                    // 6页专属逻辑：笔记新增/编辑+保存+清空【核心修复】
+                    document.addEventListener('DOMContentLoaded', function () {
+                        // 强校验元素是否存在
+                        const noteTitle = document.getElementById('noteTitle');
+                        const noteContent = document.getElementById('noteContent');
+                        const saveFab = document.getElementById('saveFab');
+                        const clearFab6 = document.getElementById('clearFab6');
+                        if (!noteTitle || !noteContent || !saveFab || !clearFab6) return;
+
+                        // 初始化MDUI文本框样式（防空值报错）
+                        let textFields = null;
+                        try {
+                            textFields = new mdui.Textfield([noteTitle, noteContent]);
+                        } catch (e) { }
+
+                        // 核心：根据临时ID加载编辑内容
+                        function loadNoteForEdit() {
+                            if (!window.tempNoteId || !window.notesManager || typeof window.notesManager.getNoteById !== 'function') return;
+                            const note = window.notesManager.getNoteById(window.tempNoteId);
+                            if (note) {
+                                noteTitle.value = note.title;
+                                noteContent.value = note.content;
+                                textFields?.update(); // 刷新MDUI样式
+                            }
+                        }
+                        // 扩展nav函数（不重写，添加钩子）
+                        if (window.nav && !window.nav.hasHook6) {
+                            const originalNav = window.nav;
+                            window.nav = function (targetId) {
+                                originalNav(targetId);
+                                setTimeout(() => {
+                                    if (targetId === 6) loadNoteForEdit();
+                                }, 500);
+                            };
+                            window.nav.hasHook6 = true; // 标记已添加钩子，防重复
+                        }
+                        // 保存Fab：新增/编辑二合一逻辑【核心修复】
+                        saveFab.onclick = function () {
+                            // 1. 即时点击反馈，避免用户以为没反应
+                            mdui.snackbar({ message: '正在保存...', position: 'right-bottom', timeout: 800 });
+                            // 2. 强校验笔记管理对象
+                            if (!window.notesManager || typeof window.notesManager.addNote !== 'function' || typeof window.notesManager.updateNote !== 'function') {
+                                mdui.snackbar({ message: '笔记功能未加载', position: 'right-bottom', timeout: 2000 });
+                                return;
+                            }
+                            // 3. 获取并校验输入值（双重去空格，防全空格）
+                            const title = noteTitle.value.trim();
+                            const content = noteContent.value.trim();
+                            if (!title || !content) {
+                                mdui.snackbar({ message: '标题和内容不能为空', position: 'right-bottom', timeout: 2000 });
+                                return;
+                            }
+                            // 4. 执行新增/编辑
+                            let isSuccess = false;
+                            if (window.tempNoteId && window.tempNoteId.trim()) {
+                                // 编辑模式
+                                isSuccess = window.notesManager.updateNote(window.tempNoteId.trim(), { title, content });
+                            } else {
+                                // 新增模式
+                                isSuccess = window.notesManager.addNote({ title, content });
+                            }
+                            // 5. 结果处理
+                            if (isSuccess) {
+                                const tip = window.tempNoteId ? '笔记编辑成功' : '笔记新增成功';
+                                mdui.snackbar({ message: tip, position: 'right-bottom', timeout: 1000 });
+                                window.tempNoteId = ''; // 清空临时ID
+                                // 清空输入框并刷新样式
+                                noteTitle.value = '';
+                                noteContent.value = '';
+                                textFields?.update();
+                                // 延时跳转，避免动效冲突
+                                setTimeout(() => nav(1), 800);
+                            } else {
+                                const tip = window.tempNoteId ? '笔记编辑失败' : '笔记新增失败';
+                                mdui.snackbar({ message: tip, position: 'right-bottom', timeout: 2000 });
+                            }
+                        };
+                        // 清空Fab：仅清空输入框内容
+                        clearFab6.onclick = function () {
+                            noteTitle.value = '';
+                            noteContent.value = '';
+                            textFields?.update();
+                            mdui.snackbar({ message: '输入内容已清空', position: 'right-bottom', timeout: 1000 });
+                        };
+                    });
+                </script>
+            </div>
+            <!-- 7-10页：保留原有结构，无任何修改 -->
+            <div id="nav-7" class="nav">Page 7（左上角返回 | 右上：编辑+删除）
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed"
+                    id="editFab7">
+                    <i class="mdui-icon material-icons">edit</i>
+                </button>
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed fab-delete"
+                    id="deleteFab7">
+                    <i class="mdui-icon material-icons">delete</i>
+                </button>
+                <script>
+                    const editFab7 = document.getElementById('editFab7');
+                    const deleteFab7 = document.getElementById('deleteFab7');
+                    if (editFab7) editFab7.onclick = () => mdui.snackbar({ message: '编辑功能触发', position: 'right-bottom', timeout: 1000 });
+                    if (deleteFab7) deleteFab7.onclick = () => mdui.snackbar({ message: '删除功能触发', position: 'right-bottom', timeout: 1000 });
+                </script>
+            </div>
+            <div id="nav-8" class="nav">
+                <div class="mdui-p-x-2 mdui-p-t-1 mdui-p-b-2">
+                    <h3 class="mdui-typo-title mdui-m-b-2">登录</h3>
+                    <div class="mdui-textfield mdui-textfield-floating-label mdui-m-b-4" style="width:100%;">
+                        <label class="mdui-textfield-label">账号</label>
+                        <input type="email" id="loginAccount" class="mdui-textfield-input" autocomplete="off"
+                            onblur="this.value=this.value.trim()" />
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label mdui-m-b-4" style="width:100%;">
+                        <label class="mdui-textfield-label">密码</label>
+                        <input type="password" id="loginPwd" class="mdui-textfield-input" autocomplete="off"
+                            onblur="this.value=this.value.trim()" />
+                    </div>
+                    <center><button class="mdui-btn mdui-btn-raised mdui-color-theme-accent mdui-ripple"
+                            onclick="nav(3);"><i class="mdui-icon material-icons">arrow_forward</i> 登录</button>
+                        <div class="mdui-typo-caption-opacity"><br>没有账号？点击右下角按钮注册</div>
+                    </center>
+                </div>
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed"
+                    id="regFab">
+                    <i class="mdui-icon material-icons">person_add</i>
+                </button>
+                <script>
+                    const regFab = document.getElementById('regFab');
+                    if (regFab) regFab.onclick = () => nav(9);
+                </script>
+            </div>
+            <div id="nav-9" class="nav">
+                <div class="mdui-p-x-2 mdui-p-t-1 mdui-p-b-2">
+                    <h3 class="mdui-typo-title mdui-m-b-2">注册</h3>
+                    <div class="mdui-textfield mdui-textfield-floating-label mdui-m-b-4" style="width:100%;">
+                        <label class="mdui-textfield-label">账号</label>
+                        <input type="text" id="regisAccount" class="mdui-textfield-input" autocomplete="off"
+                            onblur="this.value=this.value.trim()" />
+                        <div class="mdui-textfield-helper">
+                            后缀为@ore.pt，在此处输入账号时应避免输入后缀以及其他特殊字符。目前支持的字符仅26个小写英文字母及数字。账号长度不得超过20位。</div>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label mdui-m-b-4" style="width:100%;">
+                        <label class="mdui-textfield-label">密码</label>
+                        <input type="password" id="regisPwd" class="mdui-textfield-input" autocomplete="off"
+                            onblur="this.value=this.value.trim()" />
+                        <div class="mdui-textfield-helper mdui-typo">
+                            很建议使用安全系数高的密码。我们使用公认最安全的加密算法<a href="https://www.argon2.com/">Argon 2</a>来加密你的所有密码。</div>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label mdui-m-b-4" style="width:100%;">
+                        <label class="mdui-textfield-label">确认密码</label>
+                        <input type="password" id="regisPwdTwo" class="mdui-textfield-input" autocomplete="off"
+                            onblur="this.value=this.value.trim()" />
+                        <div class="mdui-textfield-helper">
+                            此处输入的密码应当和上一个输入框内的内容相同。</div>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label mdui-m-b-4" style="width:100%;">
+                        <label class="mdui-textfield-label">昵称</label>
+                        <input type="text" id="regisName" class="mdui-textfield-input" autocomplete="off"
+                            onblur="this.value=this.value.trim()" />
+                        <div class="mdui-textfield-helper">不可重名，不可超过20个字符。</div>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label mdui-m-b-4" style="width:100%;">
+                        <label class="mdui-textfield-label">简介</label>
+                        <textarea type="text" id="regisDiscrpt" class="mdui-textfield-input" autocomplete="off"
+                            onblur="this.value=this.value.trim()"></textarea>
+                        <div class="mdui-textfield-helper">不可超过50个字符。</div>
+                    </div>
+                    <center><button class="mdui-btn mdui-btn-raised mdui-color-theme-accent mdui-ripple"
+                            onclick="nav(3);"><i class="mdui-icon material-icons">arrow_forward</i> 注册</button>
+                        <div class="mdui-typo-caption-opacity"><br>已有账号？点击右下角按钮登录</div>
+                    </center>
+                </div>
+                <button
+                    class="danrudanchu mdui-fab mdui-color-theme-accent mdui-ripple mdui-ripple-black mdui-fab-fixed"
+                    id="lgnFab">
+                    <i class="mdui-icon material-icons">person</i>
+                </button>
+                <script>
+                    const lgnFab = document.getElementById('lgnFab');
+                    if (lgnFab) lgnFab.onclick = () => nav(8);
+                </script>
+            </div>
+            <div id="nav-10" class="nav">Page 10</div>
+            <div id="nav-11" class="nav">
+                <div class="mdui-container" style="padding: 8px 0px 8px; width: 100%; max-width: 100vw;">
+                    <style>
+                        :root {
+                            --cell-size: 38px;
+                            --font-size: 23.484px;
+                            --cell-gap: 1px;
+                            /* 格子间距抽成变量，方便统一修改 */
+                        }
+
+                        .mine-info {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 8px 12px;
+                            background: #f5f5f5;
+                            border-radius: 6px;
+                            margin-bottom: 10px;
+                        }
+
+                        .mine-control {
+                            display: flex;
+                            gap: 8px;
+                            margin-bottom: 10px;
+                            flex-wrap: wrap;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 0 10px;
+                        }
+
+                        .mine-control input {
+                            width: 80px;
+                            padding: 4px 8px;
+                        }
+
+                        /* 核心修改1：锁定棋盘宽度为屏幕宽度，去掉fit-content，加边距防溢出 */
+                        .mine-grid {
+                            display: grid;
+                            gap: var(--cell-gap);
+                            margin: 0 auto;
+                            width: 100%;
+                            max-width: calc(100vw - 20px);
+                            /* 左右各10px边距，避免贴边 */
+                            justify-content: center;
+                        }
+
+                        .mine-cell {
+                            width: var(--cell-size);
+                            height: var(--cell-size);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: black;
+                            font-size: var(--font-size);
+                            border-radius: 3px;
+                            cursor: pointer;
+                            transition: all 0.3s ease-in-out;
+                        }
+
+                        .mine-cell .material-icons {
+                            font-size: var(--font-size);
+                        }
+
+                        /* 打开后取消立体，扁平化 */
+                        .mine-cell.opened {
+                            border-radius: 3px;
+                        }
+
+                        /* 彩色数字：提升权重，确保不被覆盖 */
+                        .mine-cell.opened.num1 {
+                            color: #2196f3 !important;
+                        }
+
+                        .mine-cell.opened.num2 {
+                            color: #4caf50 !important;
+                        }
+
+                        .mine-cell.opened.num3 {
+                            color: #f44336 !important;
+                        }
+
+                        .mine-cell.opened.num4 {
+                            color: #3f51b5 !important;
+                        }
+
+                        .mine-cell.opened.num5 {
+                            color: #ff9800 !important;
+                        }
+
+                        .mine-cell.opened.num6 {
+                            color: #009688 !important;
+                        }
+
+                        .mine-cell.opened.num7 {
+                            color: #00bcd4 !important;
+                        }
+
+                        .mine-cell.opened.num8 {
+                            color: #cddc39 !important;
+                        }
+
+                        .mdui-theme-layout-dark .mine-cell.opened {
+                            background: #333;
+                        }
+
+                        .mdui-theme-layout-dark .mine-info {
+                            background: #212121;
+                        }
+
+                        .mdui-container {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                        }
+
+                        /* 状态栏样式优化 */
+                        #statusBar {
+                            width: 100%;
+                            background: #f5f5f5;
+                            transition: background 0.2s ease;
+                            margin: 0 auto 12px auto;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            font-size: 18px;
+                            font-weight: bold;
+                            min-width: 280px;
+                        }
+
+                        .mdui-theme-layout-dark #statusBar {
+                            background: #212121;
+                            color: #fff;
+                        }
+                    </style>
+                    <div class="mine-control">
+                        <button class="mdui-color-theme-accent mdui-btn mdui-btn-raised mdui-color-theme mdui-ripple"
+                            id="juniorBtn"><i class="mdui-icon material-icons mdui-hidden"
+                                id="juniorIcon">filter_1</i><i class="mdui-icon material-icons"
+                                id="juniorIconCheck">check</i>初级 - 9*9/10</button>
+                        <button class="mdui-color-theme-accent mdui-btn mdui-btn-raised mdui-color-theme mdui-ripple"
+                            id="middleBtn"><i class="mdui-icon material-icons" id="middleIcon">filter_2</i><i
+                                class="mdui-icon material-icons mdui-hidden" id="middleIconCheck">check</i>中级 -
+                            16*16/40</button>
+                        <button class="mdui-color-theme-accent mdui-btn mdui-btn-raised mdui-color-theme mdui-ripple"
+                            id="expertBtn"><i class="mdui-icon material-icons" id="expertIcon">filter_3</i><i
+                                class="mdui-icon material-icons mdui-hidden" id="expertIconCheck">check</i>高级 -
+                            16*30/99</button>
+                        <button class="mdui-color-theme-accent mdui-btn mdui-btn-raised mdui-color-theme mdui-ripple"
+                            id="customBtn"><i class="mdui-icon material-icons" id="customIcon">settings</i><i
+                                class="mdui-icon material-icons mdui-hidden" id="customIconCheck">check</i>自定义</button>
+                    </div>
+                    <div class="mine-control mdui-hidden" id="customdashboard">
+                        <div class="mdui-textfield mdui-textfield-floating-label">
+                            <label class="mdui-textfield-label">宽度</label>
+                            <input class="mdui-textfield-input" type="number" id="setW" min="9" max="50" value="9" />
+                        </div>
+                        <div class="mdui-textfield mdui-textfield-floating-label">
+                            <label class="mdui-textfield-label">高度</label>
+                            <input class="mdui-textfield-input" type="number" id="setH" min="9" max="100" value="9" />
+                        </div>
+                        <div class="mdui-textfield mdui-textfield-floating-label">
+                            <label class="mdui-textfield-label">雷数</label>
+                            <input class="mdui-textfield-input" type="number" id="setM" min="10" value="10" />
+                        </div>
+                        <button class="mdui-color-theme-accent mdui-btn mdui-btn-raised mdui-color-theme mdui-ripple"
+                            id="applyBtn"><i class="mdui-icon material-icons">done</i>应用</button>
+                    </div>
+                    <div id="statusBar" class="mdui-ripple mdui-btn-raised"
+                        style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+                        <div id="minecount" style="display: flex; align-items: center; gap: 6px;"><i
+                                class="mdui-icon material-icons">flag</i><span>10</span></div>
+                        <div id="timer" style="display: flex; align-items: center; gap: 6px;"><span>0.00</span><i
+                                class="mdui-icon material-icons">timer</i></div>
+                    </div>
+                    <div class="mine-grid" id="mine-grid" style="padding: 2px"></div>
+                    <div class="mdui-typo">
+                        <h4>游戏操作说明</h4>
+                        <p>第一次点击不会是雷。格子里的数字表示它周围有8个格子中有几个雷。游戏目标是找出所有雷<b>（打开所有不是雷的格子）</b>，点到雷则游戏失败。点击右下角按钮可重新开始游戏。<b>“二选一”留到最后可任选，需先清完其他方块</b>。
+                        </p>
+                        <p><b>电脑端：</b>鼠标右键点击未明方块，以小旗标记为雷，再点变为问号标记，再次点击取消标记；标记的雷数和数字匹配时，左键双击数字翻开周围安全区域；鼠标左键点击无标记方块直接打开。
+                        </p>
+                        <p><b>手机/平板端：</b>触屏按住方块标记为雷<b>（某些设备可能会振动，振动时说明完成了）</b>，再点变为问号标记，再次点击取消标记；标记的雷数和数字匹配时，双击数字翻开周围安全区域；点击方块直接打开。
+                        </p>
+                        <h4>游戏相关</h4>
+                        <p>
+                            扫雷游戏起源于 1973 年的"方块"游戏，1992 年微软在 Windows 3.1 中加入该游戏后风靡全球。玩扫雷可锻炼观察和推理能力，培养细心和耐心。
+                            <br>
+                            不标雷的玩法称为<b>盲扫</b>，是高阶玩法哦！
+                        </p>
+                    </div>
+                    <button class="mdui-fab mdui-color-theme-accent mdui-ripple mdui-fab-fixed" id="replayfab"
+                        style="bottom: 20px; right: 20px;">
+                        <i class="mdui-icon material-icons">replay</i>
+                    </button>
+                    <script>
+                        $(function () {
+                            // 游戏配置
+                            const config = { row: 9, col: 9, mineNum: 10 };
+                            let mineMap = [], statusMap = [];
+                            let time = 0, timer = null;
+                            let gameStart = false, gameOver = false, firstClick = true;
+                            let tipTriggered = false;
+                            const cellGap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell-gap')); // 获取格子间距
+
+                            // 核心修改2：重写尺寸计算逻辑，锁定宽度为屏幕宽度，动态算单元格尺寸
+                            function updateCellSize() {
+                                clearTimeout(window.resizeTimer);
+                                window.resizeTimer = setTimeout(() => {
+                                    // 屏幕可用宽度：总宽度 - 左右边距(20px)
+                                    const screenAvailW = window.innerWidth - 20;
+                                    // 单元格总宽度 = 可用宽度 - (列数-1)*间距 （因为n个格子有n-1个间距）
+                                    const totalCellW = screenAvailW - (config.col - 1) * cellGap;
+                                    // 单个单元格尺寸：平均分配，取整保证无溢出
+                                    let cellSize = Math.floor(totalCellW / config.col);
+                                    // 最小尺寸限制：避免列数太多（如50列）时格子太小，保证可点击
+                                    cellSize = Math.min(Math.max(cellSize, 15), 45);
+
+                                    // 更新CSS变量（单元格尺寸、字体尺寸）
+                                    document.documentElement.style.setProperty('--cell-size', cellSize + 'px');
+                                    document.documentElement.style.setProperty('--font-size', (cellSize * 0.618).toFixed(3) + 'px');
+                                    // 动态设置网格列宽：固定尺寸，保证总宽度适配屏幕
+                                    $("#mine-grid").css('grid-template-columns', `repeat(${config.col}, ${cellSize}px)`);
+                                }, 50);
+                            }
+
+                            function initGame() {
+                                clearInterval(timer);
+                                time = 0;
+                                gameStart = false;
+                                gameOver = false;
+                                firstClick = true;
+                                tipTriggered = false;
+                                $("#timer span").text(0.00);
+                                $("#minecount span").text(config.mineNum);
+                                $("#mine-grid").empty(); // 移除原列宽设置，交给updateCellSize处理
+                                updateCellSize(); // 初始化时计算尺寸
+                                mineMap = [];
+                                statusMap = Array.from({ length: config.row }, () => Array(config.col).fill(0));
+                                renderGrid();
+                                bindEvents();
+                            }
+
+                            function renderGrid() {
+                                const grid = $("#mine-grid");
+                                grid.empty();
+                                for (let x = 0; x < config.row; x++) {
+                                    for (let y = 0; y < config.col; y++) {
+                                        grid.append(`<button class="mdui-color-theme mine-cell mdui-ripple mdui-ripple-white mdui-btn-raised" style="margin: 0px;" data-x="${x}" data-y="${y}"></button>`);
+                                    }
+                                }
+                            }
+
+                            function createMinesSafe(safeX, safeY) {
+                                mineMap = Array.from({ length: config.row }, () => Array(config.col).fill(false));
+                                let count = 0;
+                                const maxMine = config.row * config.col - 9;
+                                config.mineNum = Math.min(Math.max(config.mineNum, 10), maxMine);
+                                $("#minecount span").text(config.mineNum);
+                                $("#setM").val(config.mineNum);
+                                while (count < config.mineNum) {
+                                    const x = Math.floor(Math.random() * config.row);
+                                    const y = Math.floor(Math.random() * config.col);
+                                    const isSafeArea = Math.abs(x - safeX) <= 1 && Math.abs(y - safeY) <= 1;
+                                    if (!isSafeArea && !mineMap[x][y]) {
+                                        mineMap[x][y] = true;
+                                        count++;
+                                    }
+                                }
+                            }
+
+                            function bindEvents() {
+                                $(window).off('resize').on('resize', updateCellSize);
+                                // 单元格左键点击
+                                $(".mine-cell").off("click").on("click", function () {
+                                    if (gameOver) return;
+                                    const x = $(this).data("x"), y = $(this).data("y");
+                                    if (statusMap[x][y] === 2 || statusMap[x][y] === 3) return;
+                                    if (firstClick) {
+                                        firstClick = false;
+                                        createMinesSafe(x, y);
+                                        gameStart = true;
+                                        timer = (setInterval(() => $("#timer span").text(++time), 1000));
+                                    }
+                                    openCell(x, y);
+                                });
+                                // 单元格双击
+                                $(".mine-cell").off("dblclick").on("dblclick", function (e) {
+                                    e.preventDefault();
+                                    if (gameOver || firstClick) return;
+                                    const x = $(this).data("x"), y = $(this).data("y");
+                                    if (statusMap[x][y] !== 1) return;
+                                    let flagCount = 0;
+                                    for (let i = -1; i <= 1; i++) {
+                                        for (let j = -1; j <= 1; j++) {
+                                            const nx = x + i, ny = y + j;
+                                            if (nx >= 0 && nx < config.row && ny >= 0 && ny < config.col && statusMap[nx][ny] === 2) {
+                                                flagCount++;
+                                            }
+                                        }
+                                    }
+                                    if (flagCount === countMine(x, y)) {
+                                        for (let i = -1; i <= 1; i++) {
+                                            for (let j = -1; j <= 1; j++) {
+                                                const nx = x + i, ny = y + j;
+                                                if (nx >= 0 && nx < config.row && ny >= 0 && ny < config.col && statusMap[nx][ny] === 0) {
+                                                    openCell(nx, ny);
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                                // 单元格右键
+                                $(".mine-cell").off("contextmenu").on("contextmenu", function (e) {
+                                    e.preventDefault();
+                                    if (gameOver || firstClick) return;
+                                    const x = $(this).data("x"), y = $(this).data("y");
+                                    const cell = $(this);
+                                    if (statusMap[x][y] === 1) return;
+                                    if (statusMap[x][y] === 0) {
+                                        statusMap[x][y] = 2;
+                                        cell.html(`<i class="mdui-icon material-icons" style="color:#b71c1c">flag</i>`);
+                                        $("#minecount span").text(Number($("#minecount span").text()) - 1);
+                                    } else if (statusMap[x][y] === 2) {
+                                        statusMap[x][y] = 3
+                                        cell.html(`<b>?</b>`);
+                                        $("#minecount span").text(Number($("#minecount span").text()) + 1);
+                                    } else if (statusMap[x][y] === 3) {
+                                        statusMap[x][y] = 0;
+                                        cell.empty();
+                                    }
+                                });
+                                // 应用配置按钮
+                                $("#applyBtn").off("click").on("click", function () {
+                                    let w = Number($("#setW").val()) || 9;
+                                    let h = Number($("#setH").val()) || 9;
+                                    let m = Number($("#setM").val()) || 10;
+                                    // 放宽列数/行数限制（宽度最多50列，高度最多100行）
+                                    w = Math.min(Math.max(w, 9), 50);
+                                    h = Math.min(Math.max(h, 9), 100);
+                                    const maxM = w * h - 9;
+                                    m = Math.min(Math.max(m, 10), maxM);
+                                    $("#setW").val(w);
+                                    $("#setH").val(h);
+                                    $("#setM").val(m);
+                                    config.col = w;
+                                    config.row = h;
+                                    config.mineNum = m;
+                                    initGame();
+                                });
+                                $("#juniorBtn").off("click").on("click", function () {
+                                    const juniorIcon = $(`#juniorIcon`);
+                                    const middleIcon = $(`#middleIcon`);
+                                    const expertIcon = $(`#expertIcon`);
+                                    const customIcon = $(`#customIcon`);
+                                    juniorIcon.addClass("mdui-hidden");
+                                    middleIcon.removeClass("mdui-hidden");
+                                    expertIcon.removeClass("mdui-hidden");
+                                    customIcon.removeClass("mdui-hidden");
+                                    const juniorIconCheck = $(`#juniorIconCheck`);
+                                    const middleIconCheck = $(`#middleIconCheck`);
+                                    const expertIconCheck = $(`#expertIconCheck`);
+                                    const customIconCheck = $(`#customIconCheck`);
+                                    juniorIconCheck.removeClass("mdui-hidden");
+                                    middleIconCheck.addClass("mdui-hidden");
+                                    expertIconCheck.addClass("mdui-hidden");
+                                    customIconCheck.addClass("mdui-hidden");
+                                    const dash = $(`#customdashboard`);
+                                    dash.addClass("mdui-hidden");
+                                    config.col = 9;
+                                    config.row = 9;
+                                    config.mineNum = 10;
+                                    initGame();
+                                });
+                                $("#middleBtn").off("click").on("click", function () {
+                                    const juniorIcon = $(`#juniorIcon`);
+                                    const middleIcon = $(`#middleIcon`);
+                                    const expertIcon = $(`#expertIcon`);
+                                    const customIcon = $(`#customIcon`);
+                                    juniorIcon.removeClass("mdui-hidden");
+                                    middleIcon.addClass("mdui-hidden");
+                                    expertIcon.removeClass("mdui-hidden");
+                                    customIcon.removeClass("mdui-hidden");
+                                    const juniorIconCheck = $(`#juniorIconCheck`);
+                                    const middleIconCheck = $(`#middleIconCheck`);
+                                    const expertIconCheck = $(`#expertIconCheck`);
+                                    const customIconCheck = $(`#customIconCheck`);
+                                    juniorIconCheck.addClass("mdui-hidden");
+                                    middleIconCheck.removeClass("mdui-hidden");
+                                    expertIconCheck.addClass("mdui-hidden");
+                                    customIconCheck.addClass("mdui-hidden");
+                                    const dash = $(`#customdashboard`);
+                                    dash.addClass("mdui-hidden");
+                                    config.col = 16;
+                                    config.row = 16;
+                                    config.mineNum = 40;
+                                    initGame();
+                                });
+                                $("#expertBtn").off("click").on("click", function () {
+                                    const screenWidth = window.innerWidth;
+                                    const screenHeight = window.innerHeight;
+                                    const juniorIcon = $(`#juniorIcon`);
+                                    const middleIcon = $(`#middleIcon`);
+                                    const expertIcon = $(`#expertIcon`);
+                                    const customIcon = $(`#customIcon`);
+                                    juniorIcon.removeClass("mdui-hidden");
+                                    middleIcon.removeClass("mdui-hidden");
+                                    expertIcon.addClass("mdui-hidden");
+                                    customIcon.removeClass("mdui-hidden");
+                                    const juniorIconCheck = $(`#juniorIconCheck`);
+                                    const middleIconCheck = $(`#middleIconCheck`);
+                                    const expertIconCheck = $(`#expertIconCheck`);
+                                    const customIconCheck = $(`#customIconCheck`);
+                                    juniorIconCheck.addClass("mdui-hidden");
+                                    middleIconCheck.addClass("mdui-hidden");
+                                    expertIconCheck.removeClass("mdui-hidden");
+                                    customIconCheck.addClass("mdui-hidden");
+                                    const dash = $(`#customdashboard`);
+                                    dash.addClass("mdui-hidden");
+                                    if (screenWidth > screenHeight) {
+                                        config.col = 30;
+                                        config.row = 16;
+                                        config.mineNum = 99;
+                                    } else {
+                                        config.col = 16;
+                                        config.row = 30;
+                                        config.mineNum = 99;
+                                    }
+                                    initGame();
+                                });
+                                $("#customBtn").off("click").on("click", function () {
+                                    const juniorIcon = $(`#juniorIcon`);
+                                    const middleIcon = $(`#middleIcon`);
+                                    const expertIcon = $(`#expertIcon`);
+                                    const customIcon = $(`#customIcon`);
+                                    juniorIcon.removeClass("mdui-hidden");
+                                    middleIcon.removeClass("mdui-hidden");
+                                    expertIcon.removeClass("mdui-hidden");
+                                    customIcon.addClass("mdui-hidden");
+                                    const juniorIconCheck = $(`#juniorIconCheck`);
+                                    const middleIconCheck = $(`#middleIconCheck`);
+                                    const expertIconCheck = $(`#expertIconCheck`);
+                                    const customIconCheck = $(`#customIconCheck`);
+                                    juniorIconCheck.addClass("mdui-hidden");
+                                    middleIconCheck.addClass("mdui-hidden");
+                                    expertIconCheck.addClass("mdui-hidden");
+                                    customIconCheck.removeClass("mdui-hidden");
+                                    const dash = $(`#customdashboard`);
+                                    dash.removeClass("mdui-hidden");
+                                    let w = Number($("#setW").val()) || 9;
+                                    let h = Number($("#setH").val()) || 9;
+                                    let m = Number($("#setM").val()) || 10;
+                                    // 放宽列数/行数限制（宽度最多50列，高度最多100行）
+                                    w = Math.min(Math.max(w, 9), 50);
+                                    h = Math.min(Math.max(h, 9), 100);
+                                    const maxM = w * h - 9;
+                                    m = Math.min(Math.max(m, 10), maxM);
+                                    $("#setW").val(w);
+                                    $("#setH").val(h);
+                                    $("#setM").val(m);
+                                    config.col = w;
+                                    config.row = h;
+                                    config.mineNum = m;
+                                    initGame();
+                                });
+                                // 重新开始按钮
+                                $("#replayfab").off("click").on("click", initGame);
+                            }
+
+                            // 打开单元格逻辑（无修改）
+                            function openCell(x, y) {
+                                if (mineMap[x][y]) {
+                                    if (tipTriggered) return;
+                                    gameOver = true;
+                                    tipTriggered = true;
+                                    clearInterval(timer);
+                                    showAllMines();
+                                    mdui.snackbar({
+                                        message: '游戏结束',
+                                        position: 'right-bottom',
+                                        timeout: 3000
+                                    });
+                                    return;
+                                }
+                                if (statusMap[x][y] !== 0) return;
+                                statusMap[x][y] = 1;
+                                const cell = $(`.mine-cell[data-x=${x}][data-y=${y}]`).addClass("opened");
+                                if (typeof wd !== 'undefined' && wd.isDarkMode()) {
+                                    cell.addClass("mdui-color-theme-900 mdui-ripple-white");
+                                } else {
+                                    cell.addClass("mdui-color-theme-50 mdui-ripple-black");
+                                }
+                                const mineNum = countMine(x, y);
+                                if (mineNum > 0) {
+                                    cell.text(mineNum).addClass(`num${mineNum}`);
+                                } else {
+                                    for (let i = -1; i <= 1; i++) {
+                                        for (let j = -1; j <= 1; j++) {
+                                            const nx = x + i, ny = y + j;
+                                            if (nx >= 0 && nx < config.row && ny >= 0 && ny < config.col) {
+                                                openCell(nx, ny);
+                                            }
+                                        }
+                                    }
+                                }
+                                checkWin();
+                            }
+
+                            function countMine(x, y) {
+                                let count = 0;
+                                for (let i = -1; i <= 1; i++) {
+                                    for (let j = -1; j <= 1; j++) {
+                                        const nx = x + i, ny = y + j;
+                                        if (nx >= 0 && nx < config.row && ny >= 0 && ny < config.col && mineMap[nx][ny]) {
+                                            count++;
+                                        }
+                                    }
+                                }
+                                return count;
+                            }
+
+                            function showAllMines() {
+                                $(".mine-cell").each(function () {
+                                    const x = $(this).data("x"), y = $(this).data("y");
+                                    if (mineMap[x][y]) {
+                                        const cell = $(`.mine-cell[data-x=${x}][data-y=${y}]`)
+                                        if (typeof wd !== 'undefined' && wd.isDarkMode()) {
+                                            cell.removeClass("mdui-color-theme");
+                                        } else {
+                                            cell.removeClass("mdui-color-theme");
+                                        }
+                                        $(this).html(`<i class="mdui-icon material-icons">flare</i>`).css({
+                                            background: "#b71c1c",
+                                            border: "1px solid #b71c1c"
+                                        });
+                                    }
+                                });
+                            }
+
+                            function checkWin() {
+                                let openedCount = 0;
+                                const totalNonMine = config.row * config.col - config.mineNum;
+                                statusMap.forEach(row => {
+                                    row.forEach(status => {
+                                        if (status === 1) openedCount++;
+                                    });
+                                });
+                                if (openedCount === totalNonMine) {
+                                    if (tipTriggered) return;
+                                    gameOver = true;
+                                    tipTriggered = true;
+                                    clearInterval(timer);
+                                    mdui.snackbar({
+                                        message: `胜利！用时 ${time} 秒`,
+                                        position: 'right-bottom',
+                                        timeout: 3000
+                                    });
+                                }
+                            }
+
+                            // 初始化游戏
+                            initGame();
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    </div>
+    <!-- 底部导航：1-4页显示，5-9页向下移出屏幕隐藏 -->
+    <div id="bottomNav" class="danrudanchu mdui-bottom-nav mdui-color-theme" style="height:60px;">
+        <a onclick="nav(1)" class="mdui-ripple mdui-bottom-nav-active">
+            <i class="mdui-icon material-icons">edit</i><label>笔记</label>
+        </a>
+        <a onclick="nav(2)" class="mdui-ripple">
+            <i class="mdui-icon material-icons">contacts</i><label>通讯录</label>
+        </a>
+        <a onclick="nav(3)" class="mdui-ripple">
+            <i class="mdui-icon material-icons">person</i><label>我的资料</label>
+        </a>
+        <a onclick="nav(4)" class="mdui-ripple">
+            <i class="mdui-icon material-icons">more_horiz</i><label>更多</label>
+        </a>
+    </div>
+    <!-- 内联MDUI核心脚本 -->
+    <script src="lib/mdui-1/js/mdui.min.js"></script>
+    <!-- 内联笔记管理核心逻辑（原notes2026.js）- 保留所有原有修复，无修改 -->
+    <script>
+        // 笔记管理核心模块 - 本地存储+增删改查
+        const NOTES_STORAGE_KEY = 'data2026_notes';
+        // 时间格式化：xxxx-xx-xx xx:xx:xx
+        function formatTime(time = new Date()) {
+            const date = new Date(time);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hour = String(date.getHours()).padStart(2, '0');
+            const minute = String(date.getMinutes()).padStart(2, '0');
+            const second = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+        // 生成8位唯一ID
+        function generateUniqueId() {
+            return Math.random().toString(36).slice(2, 10) + Math.floor(Math.random() * 1000).toString(36);
+        }
+        // 检测localStorage是否可用
+        function isLocalStorageAvailable() {
+            try {
+                const testKey = 'test_storage';
+                localStorage.setItem(testKey, testKey);
+                localStorage.removeItem(testKey);
+                return true;
+            } catch (e) {
+                mdui.snackbar({ message: '本地存储不可用，请开启后再使用', position: 'right-bottom', timeout: 3000 });
+                return false;
+            }
+        }
+        // 获取所有笔记（按更新时间从新到旧）
+        function getNotes() {
+            if (!isLocalStorageAvailable()) return [];
+            try {
+                const rawData = localStorage.getItem(NOTES_STORAGE_KEY) || '[]';
+                let notes = JSON.parse(rawData);
+                if (!Array.isArray(notes)) notes = [];
+                return notes.sort((a, b) => new Date(b.updateTime) - new Date(a.updateTime));
+            } catch (e) {
+                mdui.snackbar({ message: '获取笔记失败：本地存储数据异常', position: 'right-bottom', timeout: 2000 });
+                return [];
+            }
+        }
+        // 根据ID查询单条笔记
+        function getNoteById(id) {
+            if (!id?.trim()) {
+                mdui.snackbar({ message: '查询笔记失败：笔记ID不能为空', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+            try {
+                const notes = getNotes();
+                const targetNote = notes.find(note => note.id === id) || false;
+                if (!targetNote) {
+                    mdui.snackbar({ message: '查询笔记失败：未找到该笔记', position: 'right-bottom', timeout: 2000 });
+                }
+                return targetNote;
+            } catch (e) {
+                mdui.snackbar({ message: '查询笔记失败：系统异常', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+        }
+        // 新增笔记
+        function addNote(noteInfo) {
+            if (!isLocalStorageAvailable()) return false;
+            if (!noteInfo || typeof noteInfo !== 'object') {
+                mdui.snackbar({ message: '新增笔记失败：笔记信息格式错误', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+            const { title, content } = noteInfo;
+            if (!title?.trim() || !content?.trim()) {
+                mdui.snackbar({ message: '新增笔记失败：标题和内容不能为空', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+            try {
+                const notes = getNotes();
+                const newNote = {
+                    id: generateUniqueId(),
+                    title: title.trim(),
+                    content: content.trim(),
+                    createTime: formatTime(),
+                    updateTime: formatTime()
+                };
+                notes.push(newNote);
+                localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
+                return newNote;
+            } catch (e) {
+                mdui.snackbar({ message: '新增笔记失败：本地存储写入异常', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+        }
+        // 更新笔记
+        function updateNote(id, updateInfo) {
+            if (!isLocalStorageAvailable()) return false;
+            if (!id?.trim() || !updateInfo || typeof updateInfo !== 'object') {
+                mdui.snackbar({ message: '编辑笔记失败：参数格式错误', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+            const { title, content } = updateInfo;
+            if ((title && !title.trim()) || (content && !content.trim())) {
+                mdui.snackbar({ message: '编辑笔记失败：标题和内容不能为空', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+            try {
+                let notes = getNotes();
+                const noteIndex = notes.findIndex(note => note.id === id);
+                if (noteIndex === -1) {
+                    mdui.snackbar({ message: '编辑笔记失败：未找到该笔记', position: 'right-bottom', timeout: 2000 });
+                    return false;
+                }
+                notes[noteIndex] = {
+                    ...notes[noteIndex],
+                    title: title?.trim() || notes[noteIndex].title,
+                    content: content?.trim() || notes[noteIndex].content,
+                    updateTime: formatTime()
+                };
+                localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
+                return notes[noteIndex];
+            } catch (e) {
+                mdui.snackbar({ message: '编辑笔记失败：本地存储写入异常', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+        }
+        // 删除笔记
+        function deleteNote(id) {
+            if (!isLocalStorageAvailable()) return false;
+            if (!id?.trim()) {
+                mdui.snackbar({ message: '删除笔记失败：笔记ID不能为空', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+            try {
+                let notes = getNotes();
+                const originalLength = notes.length;
+                notes = notes.filter(note => note.id !== id);
+                if (notes.length === originalLength) {
+                    mdui.snackbar({ message: '删除笔记失败：未找到该笔记', position: 'right-bottom', timeout: 2000 });
+                    return false;
+                }
+                localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
+                return true;
+            } catch (e) {
+                mdui.snackbar({ message: '删除笔记失败：本地存储写入异常', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+        }
+        // 清空所有笔记
+        function clearAllNotes() {
+            if (!isLocalStorageAvailable()) return false;
+            try {
+                localStorage.removeItem(NOTES_STORAGE_KEY);
+                mdui.snackbar({ message: '所有笔记已清空', position: 'right-bottom', timeout: 1000 });
+                return true;
+            } catch (e) {
+                mdui.snackbar({ message: '清空笔记失败：本地存储操作异常', position: 'right-bottom', timeout: 2000 });
+                return false;
+            }
+        }
+        // 暴露全局供页面调用（防覆盖）
+        window.notesManager = window.notesManager || {
+            getNotes,
+            getNoteById,
+            addNote,
+            updateNote,
+            deleteNote,
+            clearAllNotes,
+            formatTime
+        };
+    </script>
+    <!-- 全局核心逻辑：深色模式+导航切换 - 保留所有原有逻辑，无修改 -->
+    <script>
+        function initDarkMode() {
+            if (wd.isDarkMode()) {
+                $('body').addClass('mdui-theme-layout-dark')
+            } else {
+                $('body').removeClass('mdui-theme-layout-dark')
+            }
+        }
+        initDarkMode()
+        // 页面初始化加载主题
+        initDarkMode();
+
+        // ============== 纯原生JS弹窗交互（无WD、无框架、零冲突）==============
+        document.addEventListener('DOMContentLoaded', function () {
+            const card = document.getElementById('darkmode');
+            const dialog = document.getElementById('themeDialog');
+
+            // 点击卡片 → 原生显示弹窗
+            card.onclick = () => dialog.style.display = 'block';
+            // 点击弹窗外部 → 关闭弹窗（可选优化）
+            dialog.onclick = (e) => e.target === dialog && (dialog.style.display = 'none');
+
+            // 绑定三个选项：调用initDarkMode传参 + 关闭弹窗
+            document.getElementById('lightTheme').onclick = () => { initDarkMode(1); dialog.style.display = 'none'; };
+            document.getElementById('darkTheme').onclick = () => { initDarkMode(2); dialog.style.display = 'none'; };
+            document.getElementById('autoTheme').onclick = () => { initDarkMode(3); dialog.style.display = 'none'; };
+        });
+        if (typeof wd !== 'undefined') wd?.regDarkModeChangeEvent('initDarkMode');
+        // 核心导航切换函数：双导航栏+底部导航显隐+页面切换
+        function nav(targetId) {
+            const pageContainer = document.getElementById('pageContainer');
+            const bottomNav = document.getElementById('bottomNav');
+            const topNavMain = document.getElementById('topNavMain');
+            const topNavSub = document.getElementById('topNavSub');
+            const bottomNavItems = document.querySelectorAll('.mdui-bottom-nav a');
+            // 防传参异常
+            if (!targetId || isNaN(targetId)) return;
+            // 触发淡入淡出动效
+            pageContainer?.classList.add('fade-out');
+            // 双导航栏+底部导航显隐逻辑
+            if (targetId >= 1 && targetId <= 4) {
+                topNavMain?.classList.remove('nav-hide-top');
+                topNavSub?.classList.add('nav-hide-top');
+                bottomNav?.classList.remove('nav-hide');
+                // 底部导航激活态：增加判空，避免报错
+                if (bottomNavItems.length > 0) {
+                    bottomNavItems.forEach(btn => btn.classList.remove('mdui-bottom-nav-active'));
+                    const targetItem = document.querySelector(`.mdui-bottom-nav a[onclick="nav(${targetId})"]`);
+                    if (targetItem) targetItem.classList.add('mdui-bottom-nav-active');
+                }
+            } else {
+                topNavMain?.classList.add('nav-hide-top');
+                topNavSub?.classList.remove('nav-hide-top');
+                bottomNav?.classList.add('nav-hide');
+            }
+            // 动效结束后切换页面
+            setTimeout(() => {
+                document.querySelectorAll('.nav').forEach(nav => nav.classList.remove('current'));
+                const targetPage = document.getElementById(`nav-${targetId}`);
+                if (targetPage) targetPage.classList.add('current');
+                pageContainer?.classList.remove('fade-out');
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>
+<!-- 
+    【写在最后】
+    彩蛋：
+    （1）2025版的软件是作者在极短的时间内完成的，因此用户体验可能不好。2026版则会花十几天的时间把所有细节打磨到位。
+-->
