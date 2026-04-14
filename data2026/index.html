@@ -529,7 +529,7 @@
                             previewCreateTime.innerText = note.createTime;
                             previewUpdateTime.innerText = note.updateTime;
                             // ========== marked 核心渲染行 ==========
-                            previewContent.innerHTML = marked.parse(note.content).replaceAll("\n", "\n");
+                            previewContent.innerHTML = marked.parse(note.content);
                             // ========================================
                         }
                         // 扩展nav函数（不重写，添加钩子）
