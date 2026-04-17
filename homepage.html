@@ -4,7 +4,7 @@
      <meta charset="UTF-8" /> 
      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" /> 
      <title> 
-       主页 - 初源联盟工作室 
+       搜索 - 初源联盟工作室 
      </title> 
      <script src="https://cdn.tailwindcss.com"> 
      </script> 
@@ -130,7 +130,7 @@
      </header> 
      <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-8 py-8 shadow-xl flex flex-col items-center gap-6 -mt-[100px] w-3/4"> 
        <h2 class="text-[clamp(1.5rem,4vw,2.2rem)] font-medium text-center"> 
-         主页正在更新中 
+         在下方输入搜索内容
        </h2> 
        <!-- 智能输入框：网址跳转+文字搜索 --> 
        <input  
@@ -161,91 +161,7 @@
            </g> 
          </svg> 
          <span id="searchBtnTxt">跳转</span> 
-       </button><button id="searchButton" onclick="handleSearch()" class="bg-green-600 hover:bg-green-700 active:scale-95 transition-all text-white px-6 py-3 rounded-[12px] font-medium flex items-center gap-2"> 
-         <svg id="searchIcon" class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> 
-           <circle cx="11" cy="11" r="8"></circle> 
-           <line x1="21" y1="21" x2="16.65" y2="16.65"></line> 
-         </svg> 
-         <svg id="loadIcon" class="w-5 h-5 text-white animate-spin hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> 
-           <title>loading_3_line</title> 
-           <g id="loading_3_line" fill="none" fill-rule="evenodd"> 
-             <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path> 
-             <path fill="currentColor" d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12" opacity=".1"></path> 
-             <path fill="currentColor" d="M12 4a7.958 7.958 0 0 0-5.533 2.222a1 1 0 1 1-1.384-1.444A9.958 9.958 0 0 1 12 2a1 1 0 1 1 0 2"></path> 
-           </g> 
-         </svg> 
-         <svg id="successIcon" class="w-5 h-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> 
-           <title>check_circle_line</title> 
-           <g id="check_circle_line" fill="none"> 
-             <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path> 
-             <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l-.094.084 2.122 2.121 4.95-4.95Z"></path> 
-           </g> 
-         </svg> 
-         <span id="searchBtnTxt">跳转</span> 
-       </button> <button id="searchButton" onclick="handleSearch()" class="bg-green-600 hover:bg-green-700 active:scale-95 transition-all text-white px-6 py-3 rounded-[12px] font-medium flex items-center gap-2"> 
-         <svg id="searchIcon" class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> 
-           <circle cx="11" cy="11" r="8"></circle> 
-           <line x1="21" y1="21" x2="16.65" y2="16.65"></line> 
-         </svg> 
-         <svg id="loadIcon" class="w-5 h-5 text-white animate-spin hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> 
-           <title>loading_3_line</title> 
-           <g id="loading_3_line" fill="none" fill-rule="evenodd"> 
-             <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path> 
-             <path fill="currentColor" d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12" opacity=".1"></path> 
-             <path fill="currentColor" d="M12 4a7.958 7.958 0 0 0-5.533 2.222a1 1 0 1 1-1.384-1.444A9.958 9.958 0 0 1 12 2a1 1 0 1 1 0 2"></path> 
-           </g> 
-         </svg> 
-         <svg id="successIcon" class="w-5 h-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> 
-           <title>check_circle_line</title> 
-           <g id="check_circle_line" fill="none"> 
-             <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path> 
-             <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l-.094.084 2.122 2.121 4.95-4.95Z"></path> 
-           </g> 
-         </svg> 
-         <span id="searchBtnTxt">跳转</span> 
-       </button> <button id="searchButton" onclick="handleSearch()" class="bg-green-600 hover:bg-green-700 active:scale-95 transition-all text-white px-6 py-3 rounded-[12px] font-medium flex items-center gap-2"> 
-         <svg id="searchIcon" class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> 
-           <circle cx="11" cy="11" r="8"></circle> 
-           <line x1="21" y1="21" x2="16.65" y2="16.65"></line> 
-         </svg> 
-         <svg id="loadIcon" class="w-5 h-5 text-white animate-spin hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> 
-           <title>loading_3_line</title> 
-           <g id="loading_3_line" fill="none" fill-rule="evenodd"> 
-             <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path> 
-             <path fill="currentColor" d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12" opacity=".1"></path> 
-             <path fill="currentColor" d="M12 4a7.958 7.958 0 0 0-5.533 2.222a1 1 0 1 1-1.384-1.444A9.958 9.958 0 0 1 12 2a1 1 0 1 1 0 2"></path> 
-           </g> 
-         </svg> 
-         <svg id="successIcon" class="w-5 h-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> 
-           <title>check_circle_line</title> 
-           <g id="check_circle_line" fill="none"> 
-             <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path> 
-             <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l-.094.084 2.122 2.121 4.95-4.95Z"></path> 
-           </g> 
-         </svg> 
-         <span id="searchBtnTxt">跳转</span> 
-       </button> <button id="searchButton" onclick="handleSearch()" class="bg-green-600 hover:bg-green-700 active:scale-95 transition-all text-white px-6 py-3 rounded-[12px] font-medium flex items-center gap-2"> 
-         <svg id="searchIcon" class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> 
-           <circle cx="11" cy="11" r="8"></circle> 
-           <line x1="21" y1="21" x2="16.65" y2="16.65"></line> 
-         </svg> 
-         <svg id="loadIcon" class="w-5 h-5 text-white animate-spin hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> 
-           <title>loading_3_line</title> 
-           <g id="loading_3_line" fill="none" fill-rule="evenodd"> 
-             <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path> 
-             <path fill="currentColor" d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12" opacity=".1"></path> 
-             <path fill="currentColor" d="M12 4a7.958 7.958 0 0 0-5.533 2.222a1 1 0 1 1-1.384-1.444A9.958 9.958 0 0 1 12 2a1 1 0 1 1 0 2"></path> 
-           </g> 
-         </svg> 
-         <svg id="successIcon" class="w-5 h-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> 
-           <title>check_circle_line</title> 
-           <g id="check_circle_line" fill="none"> 
-             <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path> 
-             <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16m3.535 4.381a1 1 0 0 1 1.498 1.32l-.083.094-5.586 5.587a1.1 1.1 0 0 1-1.46.085l-.096-.085-2.758-2.758a1 1 0 0 1 1.32-1.498l-.094.084 2.122 2.121 4.95-4.95Z"></path> 
-           </g> 
-         </svg> 
-         <span id="searchBtnTxt">跳转</span> 
-       </button> 
+       </button>
      </div> 
      <a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">     
        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0"> 
