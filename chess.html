@@ -127,7 +127,6 @@
       opacity: 0;   
       pointer-events: none;   
     }
-
     /* 原页面1：棋盘与棋子自定义样式 */
     @layer utilities {
       .bg-blur-12 {
@@ -163,7 +162,6 @@
 </head>
 <body oncontextmenu="return false;" class="bg-[url('./pictures/light_backdrop.jpg')] dark:bg-[url('./pictures/dark_backdrop.jpg')] text-gray-900 dark:text-white transition-colors duration-300">
 <noscript><title>请先启用 JavaScript 再访问此页面。</title><h1 style="text-align:center;">初源联盟工作室</h1><h2 style="text-align:center">本页面依赖 JavaScript 运行，请启用或更换浏览器。</h2></noscript>
-
 <!-- 加载遮罩（原页面2） -->
 <div id="loading-mask">
   <div class="loading-spinner"></div>
@@ -172,7 +170,6 @@
     <img src="./pictures/index/dark_footer.png" class="hidden dark:block w-full h-auto" onload="checkFooterImageLoaded()" alt="首次加载可能较慢，请耐心等待" />
   </div>
 </div>
-
 <!-- 顶部导航栏（原页面2） -->
 <header class="fixed top-0 left-0 right-0 rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-4 shadow-sm z-20">
   <div class="max-w-7xl mx-auto flex items-center justify-center">
@@ -181,7 +178,6 @@
     </h1>
   </div>
 </header>
-
 <!-- 主内容区：国际象棋（原页面1核心功能） -->
 <div class="w-full max-w-6xl mx-auto px-4 mt-[70px] mb-[80px] h-[calc(100vh-150px)] overflow-auto">
   <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 p-4 shadow-xl">
@@ -194,15 +190,14 @@
         <button id="btn-reset" class="px-4 py-2 rounded-lg bg-red-500 dark:bg-red-600 text-white font-medium hover:bg-red-600 dark:hover:bg-red-700 transition-all duration-300 ease-in-out active:scale-95">重置对局</button>
       </div>
     </header>
-
     <!-- 棋盘与记谱面板 -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
       <!-- 棋盘区域 -->
-      <div class="lg:col-span-3 flex justify-center">
+      <div class="lg:col-span-3 flex justify-center items-center">
         <div class="bg-white/90 dark:bg-gray-900/80 p-3 rounded-2xl shadow-2xl backdrop-blur transition-colors duration-300">
           <div class="flex">
             <!-- 左侧行号 -->
-            <div class="flex flex-col justify-around text-sm font-medium text-gray-500 dark:text-gray-400 pr-1">
+            <div class="w-6 flex flex-col justify-around text-sm font-medium text-gray-500 dark:text-gray-400 pr-1 text-right">
               <span>8</span><span>7</span><span>6</span><span>5</span>
               <span>4</span><span>3</span><span>2</span><span>1</span>
             </div>
@@ -237,7 +232,6 @@
     
   </div>
 </div><div style="height: 160px;"></div>
-
 <!-- 左下角固定按钮（原页面2） -->
 <a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0">
@@ -249,19 +243,17 @@
   </svg>
   编辑此页面
 </a>
-
 <!-- 右下角固定按钮（原页面2） -->
 <a href="https://forms.cloud.microsoft/r/B2VQSTyAZL" target="_blank" class="fixed right-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex flex-row-reverse items-center gap-2 transition-all z-10 shadow-sm">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0">
     <title>add_line</title>
     <g id="add_line" fill='none'>
-      <path d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z'/>
+      <path d='M24 0v24H0V0zM12.593 23.258l-.011.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z'/>
       <path fill='currentColor' d='M11 20a1 1 0 1 0 2 0v-7h7a1 1 0 1 0 0-2h-7V4a1 1 0 1 0-2 0v7H4a1 1 0 1 0 0 2h7z'/>
     </g>
   </svg>
   申请加入我们
 </a>
-
 <!-- 底部版权栏（原页面2） -->
 <footer>
   <div class="fixed bottom-0 left-0 right-0 rounded-[12px] backdrop-blur-[6px] bg-white/50 dark:bg-black/30 py-3 text-center text-gray-800 dark:text-white text-sm">
@@ -270,7 +262,6 @@
     </div>
   </div>
 </footer>
-
 <!-- 对局全局提示 Toast（原页面1） -->
 <div id="game-toast" class="fixed inset-0 flex items-center justify-center z-50 pointer-events-none opacity-0 transition-opacity duration-300 ease-in-out">
   <div class="text-center select-none bg-black/30 dark:bg-black/40 backdrop-blur-md px-10 py-6 rounded-2xl">
@@ -278,7 +269,6 @@
     <div id="toast-subtitle" class="text-[clamp(1rem,3vw,1.5rem)] text-white/90 mt-3 font-medium"></div>
   </div>
 </div>
-
 <!-- 兵升变选择弹窗（原页面1） -->
 <div id="promote-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity duration-300 ease-in-out">
   <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-xl p-6 shadow-2xl transition-all duration-300 ease-in-out scale-95 opacity-0" id="promote-content">
@@ -286,7 +276,6 @@
     <div id="promote-options" class="flex gap-3"></div>
   </div>
 </div>
-
 <script>
   // ====================== 原页面2：基础交互逻辑 ======================
   let footerImageLoaded = false; 
@@ -303,7 +292,6 @@
       setTimeout(() => mask.remove(), 800);   
     }, 200);   
   });
-
   // ====================== 原页面1：国际象棋完整核心逻辑 ======================
   // 棋子SVG（完整保留未修改）
   const PIECE_SVG = {
@@ -332,7 +320,6 @@
           <path fill="currentColor" d="M12 21v-6.856q.223-.563.528-1.084q.305-.52.691-.983q.985-1.165 2.388-1.833t3.047-.667q1.38 0 2.363.973T22 12.923v4.73q0 1.382-.983 2.364T18.654 21zm-6.654 0q-1.38 0-2.363-.983T2 17.654v-4.731q0-1.4.983-2.373t2.363-.973q1.65 0 3.078.702t2.413 1.892q.367.458.656.946T12 14.144V21zm0-1H11.5v-3.288q0-2.558-1.801-4.346t-4.353-1.789q-.979 0-1.662.684Q3 11.944 3 12.923v4.73q0 .98.684 1.663q.683.684 1.662.684m7.154 0h6.154q.979 0 1.662-.684q.684-.683.684-1.662v-4.731q0-.979-.684-1.662q-.683-.684-1.662-.684q-2.552 0-4.353 1.789T12.5 16.712zm-1-12.254v-1.9H9.154q-.213 0-.357-.143q-.143-.144-.143-.357t.143-.357q.144-.143.357-.143H11.5V2.5q0-.213.143-.357T12 2t.357.143t.143.357v2.346h2.346q.213 0 .357.143q.143.144.143.357t-.144.357q-.144.143-.357.143H12.5v1.895q1.071.153 1.825.899q.754.745.925 1.81q-.25.123-.473.264q-.223.14-.437.311q-.017-.961-.695-1.657q-.678-.695-1.645-.695t-1.645.695t-.696 1.657q-.207-.171-.426-.311q-.22-.141-.464-.264q.171-1.065.918-1.805t1.813-.899" />
         </svg>`
   };
-
   // 游戏核心数据
   const FILES = ['a','b','c','d','e','f','g','h'];
   let board = [];
@@ -348,7 +335,6 @@
   let fullMoveNumber = 1;
   let pendingPromotion = null;
   let isAnimating = false;
-
   // 初始化对局
   function initGame() {
     board = [
@@ -381,7 +367,6 @@
     updateStatus();
     renderNotation();
   }
-
   // 全屏提示
   function showToast(title, subtitle, duration = 1500) {
     const toast = document.getElementById('game-toast');
@@ -395,7 +380,6 @@
       }, duration);
     }
   }
-
   // 渲染棋盘
   function renderBoard() {
     const boardEl = document.getElementById('chessboard');
@@ -413,7 +397,7 @@
         
         // 选中高亮
         if (selectedCell && selectedCell[0] === row && selectedCell[1] === col) {
-          cell.classList.add('ring-4', 'ring-yellow-400', 'ring-inset');
+          cell.classList.add('ring-4', 'ring-primary', 'ring-inset');
         }
         const piece = board[row][col];
         // 将死高亮
@@ -452,7 +436,6 @@
       }
     }
   }
-
   // 格子点击处理
   function handleCellClick(row, col) {
     if (gameOver || isAnimating) return;
@@ -477,7 +460,6 @@
     validMoves = [];
     renderBoard();
   }
-
   // 走子入口
   function makeMove(fromRow, fromCol, toRow, toCol, promoteTo = 'Q') {
     const piece = board[fromRow][fromCol];
@@ -490,7 +472,6 @@
     }
     executeMove(fromRow, fromCol, toRow, toCol, promoteTo);
   }
-
   // 执行走子（含移动+吃子动画）
   function executeMove(fromRow, fromCol, toRow, toCol, promoteTo = 'Q') {
     const piece = board[fromRow][fromCol];
@@ -560,7 +541,6 @@
       isAnimating = false;
     }
   }
-
   // 提交走子状态
   function commitMove(fromRow, fromCol, toRow, toCol, promoteTo, pieceType, captured, isEnPassant, ambiguous) {
     const piece = board[fromRow][fromCol];
@@ -629,7 +609,6 @@
       setTimeout(aiMove, 600);
     }
   }
-
   // 升变弹窗
   function showPromoteModal(color) {
     const modal = document.getElementById('promote-modal');
@@ -663,7 +642,6 @@
       content.classList.add('scale-100', 'opacity-100');
     }, 10);
   }
-
   // 标准代数记谱生成
   function generateNotation(fromRow, fromCol, toRow, toCol, pieceType, captured, isEnPassant, isPromotion, promoteTo, ambiguous) {
     let notation = '';
@@ -698,7 +676,6 @@
     
     return notation;
   }
-
   // 记谱歧义判断
   function checkAmbiguity(fromRow, fromCol, toRow, toCol, pieceType) {
     const color = currentTurn;
@@ -729,7 +706,6 @@
       return { file: false, rank: true };
     }
   }
-
   // 攻击范围计算
   function getAttackSquares(row, col, type, color) {
     const attacks = [];
@@ -776,7 +752,6 @@
     }
     return attacks;
   }
-
   // 完整走法生成
   function getPieceMoves(row, col, type, color) {
     const moves = [];
@@ -845,7 +820,6 @@
       }
     });
   }
-
   // 将军/将死判定
   function getValidMoves(row, col) {
     const piece = board[row][col];
@@ -949,7 +923,6 @@
     }
     document.getElementById('game-status').textContent = '';
   }
-
   // 简易AI
   function aiMove() {
     if (gameOver || isAnimating) return;
@@ -978,7 +951,6 @@
     const best = allMoves[0];
     makeMove(best.from[0], best.from[1], best.to[0], best.to[1]);
   }
-
   // UI状态更新
   function updateStatus() {
     document.getElementById('turn-text').textContent = currentTurn === 'w' ? '白方' : '黑方';
@@ -1006,12 +978,10 @@
     
     list.scrollTop = list.scrollHeight;
   }
-
   // 工具函数
   function isInBoard(row, col) {
     return row >= 0 && row < 8 && col >= 0 && col < 8;
   }
-
   // 按钮事件绑定
   document.getElementById('btn-pvp').addEventListener('click', () => {
     gameMode = 'pvp';
@@ -1028,7 +998,6 @@
     initGame();
   });
   document.getElementById('btn-reset').addEventListener('click', initGame);
-
   // 启动游戏
   initGame();
 </script>
