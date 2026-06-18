@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>国际象棋 - 初源联盟工作室</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#22c55e',
+            green: {
+              50:'#EBFBEE',
+              100:'#D3F9D8',
+              200:'#B2F2BB',
+              300:'#8CE99A',
+              400:'#69DB7C',
+              500:'#51CF66',
+              600:'#40C057',
+              700:'#37B24D',
+              800:'#2F9E44',
+              900:'#2B8A3E'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 原页面2：字体与基础样式壳 */
+    @font-face {   
+      font-family: 'CurrentFont';   
+      src: url('./fonts/currentFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'SerifFont';   
+      src: url('./fonts/serifFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'CodeFont';   
+      src: url('./fonts/codeFont.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    @font-face {   
+      font-family: 'CodeFontItalic';   
+      src: url('./fonts/codeFontItalic.woff2') format('woff2');   
+      font-weight: normal;   
+      font-style: normal;   
+      font-display: swap;   
+    }   
+    * {   
+      font-family: 'CurrentFont', sans-serif !important;   
+    }   
+    html, body {   
+      overflow: hidden;   
+      touch-action: none;   
+      height: 100%;   
+      margin: 0;   
+      background-size: cover;   
+      background-position: center;   
+      background-attachment: fixed;   
+      min-height: 100vh;   
+    }   
+    .serif, blockquote,h1,h2,h3,h4,h5,h6 {   
+      font-family: 'SerifFont', serif !important;   
+    }   
+    code, pre {   
+      font-family: 'CodeFont', monospace !important;   
+      font-style: normal !important;   
+    }   
+    code em, code i, pre em, pre i {   
+      font-family: 'CodeFontItalic', monospace !important;   
+      font-style: normal !important;   
+    }   
+    #loading-mask {   
+      position: fixed;   
+      inset: 0;   
+      z-index: 9999;   
+      display: flex;   
+      flex-direction: column; 
+      align-items: center;   
+      justify-content: center;   
+      transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);   
+      background: #ebfbee;   
+    }   
+    @media (prefers-color-scheme: dark) {   
+      #loading-mask {   
+        background: #0b6a1e;   
+      }   
+    }   
+    .loading-spinner {   
+      width: 40px;   
+      height: 40px;   
+      border: 3px solid #D3F9d8;   
+      border-top-color: #2f9e44;   
+      border-radius: 50%;   
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;   
+    } 
+    .loading-footer { 
+      position: absolute; 
+      bottom: 40px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      width: 340px; 
+      opacity: 0; 
+      transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1); 
+    } 
+    .loading-footer.show { 
+      opacity: 1; 
+    } 
+    @keyframes spin {   
+      to { transform: rotate(360deg); }   
+    }   
+    #loading-mask.fade-out {   
+      opacity: 0;   
+      pointer-events: none;   
+    }
+
+    /* 原页面1：棋盘与棋子自定义样式 */
+    @layer utilities {
+      .bg-blur-12 {
+        filter: blur(12px);
+        transform: scale(1.1);
+      }
+      .chess-cell {
+        aspect-ratio: 1 / 1;
+      }
+      .piece-base {
+        width: 80%;
+        height: 80%;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        will-change: transform, opacity;
+      }
+      .piece-base:hover {
+        transform: scale(1.1);
+      }
+      .piece-base:active {
+        transform: scale(0.9);
+      }
+      .piece-captured {
+        transform: scale(0) !important;
+        opacity: 0 !important;
+      }
+      .piece-svg {
+        width: 70%;
+        height: 70%;
+        pointer-events: none;
+      }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;" class="bg-[url('./pictures/light_backdrop.jpg')] dark:bg-[url('./pictures/dark_backdrop.jpg')] text-gray-900 dark:text-white transition-colors duration-300">
+<noscript><title>请先启用 JavaScript 再访问此页面。</title><h1 style="text-align:center;">初源联盟工作室</h1><h2 style="text-align:center">本页面依赖 JavaScript 运行，请启用或更换浏览器。</h2></noscript>
+
+<!-- 加载遮罩（原页面2） -->
+<div id="loading-mask">
+  <div class="loading-spinner"></div>
+  <div class="loading-footer" id="loadingFooter">
+    <img src="./pictures/index/light_footer.png" class="block dark:hidden w-full h-auto" onload="checkFooterImageLoaded()" alt="首次加载可能较慢，请耐心等待" />
+    <img src="./pictures/index/dark_footer.png" class="hidden dark:block w-full h-auto" onload="checkFooterImageLoaded()" alt="首次加载可能较慢，请耐心等待" />
+  </div>
+</div>
+
+<!-- 顶部导航栏（原页面2） -->
+<header class="fixed top-0 left-0 right-0 rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 px-6 py-4 shadow-sm z-20">
+  <div class="max-w-7xl mx-auto flex items-center justify-center">
+    <h1 class="text-[clamp(1.2rem,3vw,1.8rem)] font-medium serif text-gray-900 dark:text-white">
+      初源联盟工作室
+    </h1>
+  </div>
+</header>
+
+<!-- 主内容区：国际象棋（原页面1核心功能） -->
+<div class="w-full max-w-6xl mx-auto px-4 mt-[70px] mb-[80px] h-[calc(100vh-150px)] overflow-auto">
+  <div class="rounded-[12px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 p-4 shadow-xl">
+    <!-- 对局控制栏 -->
+    <header class="flex flex-wrap gap-4 items-center justify-between mb-6 bg-white/90 dark:bg-gray-900/80 rounded-xl p-4 shadow-lg backdrop-blur transition-colors duration-300">
+      <h1 class="text-[clamp(1.5rem,3vw,2.2rem)] font-bold text-primary serif">国际象棋</h1>
+      <div class="flex gap-3 flex-wrap">
+        <button id="btn-pvp" class="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/80 transition-all duration-300 ease-in-out active:scale-95">双人对战</button>
+        <button id="btn-ai" class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 ease-in-out active:scale-95">人机对战</button>
+        <button id="btn-reset" class="px-4 py-2 rounded-lg bg-red-500 dark:bg-red-600 text-white font-medium hover:bg-red-600 dark:hover:bg-red-700 transition-all duration-300 ease-in-out active:scale-95">重置对局</button>
+      </div>
+    </header>
+
+    <!-- 棋盘与记谱面板 -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- 棋盘区域 -->
+      <div class="lg:col-span-3 flex justify-center">
+        <div class="bg-white/90 dark:bg-gray-900/80 p-3 rounded-2xl shadow-2xl backdrop-blur transition-colors duration-300">
+          <div class="flex">
+            <!-- 左侧行号 -->
+            <div class="flex flex-col justify-around text-sm font-medium text-gray-500 dark:text-gray-400 pr-1">
+              <span>8</span><span>7</span><span>6</span><span>5</span>
+              <span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
+            <!-- 8x8 棋盘格子 -->
+            <div id="chessboard" class="grid grid-cols-8 w-[clamp(280px,80vw,520px)] border-2 border-primary/30 rounded-md overflow-hidden">
+            </div>
+          </div>
+          <!-- 底部列号 -->
+          <div class="flex justify-around pl-6 mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
+            <span>a</span><span>b</span><span>c</span><span>d</span>
+            <span>e</span><span>f</span><span>g</span><span>h</span>
+          </div>
+        </div>
+      </div>
+      <!-- 右侧记谱&状态面板 -->
+      <div class="bg-white/90 dark:bg-gray-900/80 rounded-xl p-4 shadow-lg backdrop-blur flex flex-col h-[clamp(400px,70vh,600px)] transition-colors duration-300">
+        <h2 class="text-lg font-bold text-primary mb-3 border-b border-primary/20 pb-2">记谱</h2>
+        <div id="notation-list" class="flex-1 overflow-y-auto space-y-1 text-sm pr-2 mb-4 font-mono"></div>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-2">
+          <div class="flex justify-between">
+            <span class="font-medium">当前回合：</span>
+            <span id="turn-text" class="text-primary font-bold">白方</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium">对局模式：</span>
+            <span id="mode-text">双人对战</span>
+          </div>
+          <div id="game-status" class="text-red-500 dark:text-red-400 font-bold text-center mt-2 min-h-[1.5rem]"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 左下角固定按钮（原页面2） -->
+<a href="https://github.com/originallyxs/originallyxs.github.io" target="_blank" class="fixed left-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex items-center gap-2 transition-all z-10 shadow-sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0">
+    <title>编辑此页面</title>
+    <g id="pen_line" fill="none">
+      <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z"></path>
+      <path fill="currentColor" d="M12.138 4.538a2 2 0 0 1 2.031.328l.126.115 4.724 4.724a2 2 0 0 1 .5 1.997l-.057.16-2.365 5.913a1.999 1.999 0 0 1-1.605 1.24l-5.079.635c-.13.015-.268.034-.41.056l-.444.072-.232.042-.723.14-.495.106-.745.167-.955.228-1.552.396-.646.174a1.01 1.01 0 0 1-1.265-1.134l.034-.146.295-1.112.264-1.048.228-.955.167-.745.105-.496.141-.722.08-.457.064-.428.66-5.28a1.999 1.999 0 0 1 1.09-1.536l.151-.069zm.742 1.857L6.968 8.76l-.584 4.672-.048.396a26.886 26.886 0 0 1-.385 2.192l-.171.786 3.288-3.288a2 2 0 1 1 1.414 1.414L7.194 18.22l.392-.087.784-.165a27.455 27.455 0 0 1 1.473-.26l5.397-.676 2.365-5.912zm2.363-3.294a1 1 0 0 1 1.32-.084l.094.084 4.242 4.242a1 1 0 0 1-1.32 1.498l-.094.084-4.242-4.242a1 1 0 0 1 0-1.414"></path>
+    </g>
+  </svg>
+  编辑此页面
+</a>
+
+<!-- 右下角固定按钮（原页面2） -->
+<a href="https://forms.cloud.microsoft/r/B2VQSTyAZL" target="_blank" class="fixed right-4 bottom-[80px] backdrop-blur-[6px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/50 px-3 py-2 rounded-[12px] text-sm text-gray-800 dark:text-white flex flex-row-reverse items-center gap-2 transition-all z-10 shadow-sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0">
+    <title>add_line</title>
+    <g id="add_line" fill='none'>
+      <path d='M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l-.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l-.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z'/>
+      <path fill='currentColor' d='M11 20a1 1 0 1 0 2 0v-7h7a1 1 0 1 0 0-2h-7V4a1 1 0 1 0-2 0v7H4a1 1 0 1 0 0 2h7z'/>
+    </g>
+  </svg>
+  申请加入我们
+</a>
+
+<!-- 底部版权栏（原页面2） -->
+<footer>
+  <div class="fixed bottom-0 left-0 right-0 rounded-[12px] backdrop-blur-[6px] bg-white/50 dark:bg-black/30 py-3 text-center text-gray-800 dark:text-white text-sm">
+    <div>
+      Copyright © 2024-<script>document.write(new Date().getFullYear())</script> OriginallyX Coalition Studio.<br> All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<!-- 对局全局提示 Toast（原页面1） -->
+<div id="game-toast" class="fixed inset-0 flex items-center justify-center z-50 pointer-events-none opacity-0 transition-opacity duration-300 ease-in-out">
+  <div class="text-center select-none bg-black/30 dark:bg-black/40 backdrop-blur-md px-10 py-6 rounded-2xl">
+    <div id="toast-title" class="text-[clamp(2.5rem,10vw,6rem)] font-black text-white drop-shadow-md tracking-wider"></div>
+    <div id="toast-subtitle" class="text-[clamp(1rem,3vw,1.5rem)] text-white/90 mt-3 font-medium"></div>
+  </div>
+</div>
+
+<!-- 兵升变选择弹窗（原页面1） -->
+<div id="promote-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity duration-300 ease-in-out">
+  <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-xl p-6 shadow-2xl transition-all duration-300 ease-in-out scale-95 opacity-0" id="promote-content">
+    <h3 class="text-lg font-bold mb-4 text-center">选择升变棋子</h3>
+    <div id="promote-options" class="flex gap-3"></div>
+  </div>
+</div>
+
+<script>
+  // ====================== 原页面2：基础交互逻辑 ======================
+  let footerImageLoaded = false; 
+  function checkFooterImageLoaded() { 
+    if(!footerImageLoaded) { 
+      footerImageLoaded = true; 
+      document.getElementById('loadingFooter').classList.add('show'); 
+    } 
+  } 
+  window.addEventListener('load', function () {   
+    setTimeout(() => {   
+      const mask = document.getElementById('loading-mask');   
+      mask.classList.add('fade-out');   
+      setTimeout(() => mask.remove(), 800);   
+    }, 200);   
+  });
+
+  // ====================== 原页面1：国际象棋完整核心逻辑 ======================
+  // 棋子SVG（完整保留未修改）
+  const PIECE_SVG = {
+    P: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="piece-svg">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path fill="currentColor" d="M6.616 21q-.667 0-1.141-.475T5 19.386v-1.88q0-.378.167-.7t.466-.545q1.975-1.573 2.722-3.075T9.452 10.5H7.366q-.213 0-.357-.144t-.144-.357t.144-.356t.356-.143H9.52q-.58-.511-.925-1.213T8.25 6.75q0-1.562 1.095-2.656T12.004 3t2.655 1.094T15.75 6.75q0 .835-.344 1.537T14.48 9.5h2.173q.212 0 .356.144t.144.357t-.144.356t-.356.143h-2.068q.305 1.185 1.056 2.686q.75 1.5 2.725 3.074q.298.223.466.545t.167.7v1.88q0 .666-.475 1.14t-1.14.475zm0-1h10.769q.269 0 .442-.173t.173-.442v-2.039q-1.916-1.53-2.921-3.183T13.55 10.5h-3.08q-.524 2.01-1.54 3.663Q7.917 15.814 6 17.346v2.039q0 .269.173.442t.443.173m5.391-10.5q1.158 0 1.95-.797t.793-1.953t-.796-1.952T12.006 4t-1.954.798T9.25 6.75t.8 1.953t1.957.797M12 20" />
+        </svg>`,
+    R: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="piece-svg">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path fill="currentColor" d="M6.616 21q-.672 0-1.144-.472T5 19.385V17.49q0-.33.137-.618t.384-.506q1.662-1.473 2.47-3.101q.807-1.63 1.336-3.593h-.846q-.69 0-1.153-.462t-.462-1.153v-4.25q0-.348.23-.578T7.672 3h2.173q.348 0 .578.23t.23.578v2.019h2.712v-2.02q0-.347.23-.577t.577-.23h2.173q.348 0 .578.23t.23.578v4.25q0 .69-.463 1.153t-1.152.462h-.872q.535 1.964 1.343 3.593q.807 1.628 2.469 3.101q.248.218.385.509q.136.291.136.62v1.889q0 .67-.472 1.143q-.472.472-1.143.472zm0-1h10.769q.269 0 .442-.173t.173-.442V17.29q-1.88-1.662-2.864-3.54T13.63 9.673h-3.267q-.516 2.2-1.502 4.078q-.987 1.878-2.862 3.54v2.094q0 .269.173.442t.443.173M8.48 8.673h7.058q.269 0 .442-.173t.173-.442V4h-1.789v2.827h-4.71V4H7.866v4.058q0 .269.173.442t.442.173m0 0h-.615h8.288zM12 20" />
+        </svg>`,
+    N: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="piece-svg">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path fill="currentColor" d="M7.5 21.02q-.69 0-1.153-.475q-.463-.474-.463-1.139v-1.613q0-.464.233-.84t.637-.593l4.669-2.418V11.29l-3.821 1.955q-.223.131-.471.187t-.497.056q-.62 0-1.145-.323t-.822-.9q-.273-.541-.234-1.141q.04-.601.37-1.113l3.005-4.625l-.749-1.15q-.269-.396-.032-.816T7.74 3H11q2.894 0 4.928 2.075t2.033 5.04v9.289q0 .666-.474 1.14t-1.14.475zm0-1h8.846q.27 0 .443-.174q.173-.173.173-.442v-9.288q0-2.549-1.74-4.332Q13.485 4 11 4H8.135l.607.95q.137.212.137.435t-.137.434l-3.09 4.758q-.183.277-.195.594t.107.616q.182.39.488.545q.306.154.594.154q.108 0 .523-.132l4.073-2.09q.404-.212.793.023q.388.234.388.703v2.593q0 .469-.242.846q-.242.378-.646.602l-4.304 2.2q-.154.096-.25.24t-.096.318v1.615q0 .269.182.442q.183.173.433.173m3.923-8.73" />
+        </svg>`,
+    B: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="piece-svg">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path fill="currentColor" d="M6.616 17.289q-.737-.91-1.176-2.46Q5 13.279 5 11.636Q5 9.672 6.48 7.89t4.495-3.47q-.183-.181-.29-.438q-.108-.257-.108-.54q0-.594.414-1.018Q11.406 2 12 2t1.009.424t.414 1.018q0 .296-.108.538q-.107.241-.304.422q3.01 1.477 4.5 3.266Q19 9.458 19 11.618q0 1.713-.434 3.274q-.433 1.562-1.162 2.397zm.505-1h9.789q.538-.991.814-2.154T18 11.638q0-.924-.387-1.814q-.388-.89-1.138-1.73t-1.872-1.605t-2.591-1.467q-1.477.752-2.6 1.563q-1.121.81-1.88 1.643T6.387 9.912T6 11.636q0 1.25.279 2.438t.842 2.215M5.961 21q-.413 0-.687-.284Q5 20.433 5 20.02t.284-.687t.697-.274h12.058q.413 0 .687.274t.274.687t-.274.697t-.687.284zm5.539-9v1.404q0 .213.143.357t.357.143t.357-.143t.143-.357V12h1.346q.213 0 .357-.143q.143-.143.143-.357t-.144-.357t-.356-.143H12.5V9.616q0-.214-.143-.357T12 9.116t-.357.143t-.143.357V11h-1.365q-.214 0-.357.143q-.144.143-.144.357t.144.357t.356.143zm.5 4.289" />
+        </svg>`,
+    Q: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="piece-svg">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path fill="currentColor" d="M7.61 20q-.59 0-1.035-.366q-.444-.367-.55-.957L4.35 9.456q-.656.04-1.118-.387t-.463-1.05q0-.594.424-1.018t1.038-.424q.594 0 1.018.424t.424 1.018q0 .292-.11.554q-.11.261-.31.454q.455.229.921.383q.467.155.976.155q1.235 0 2.249-.704q1.015-.703 1.636-1.788l.317-.573q-.36-.179-.577-.523t-.217-.766q0-.594.424-1.018T12 3.77t1.018.424t.424 1.019q0 .42-.217.765t-.577.523l.318.573q.62 1.085 1.635 1.789t2.249.704q.51 0 .976-.152t.92-.381q-.2-.192-.31-.457q-.109-.264-.109-.557q0-.594.424-1.018t1.018-.424q.614 0 1.038.424t.424 1.018q0 .623-.463 1.05t-1.099.387l-1.694 9.221q-.106.571-.55.947T16.39 20zm.025-1h8.73q.212 0 .395-.144q.182-.145.22-.356l1.54-8.266q-.41.127-.826.223q-.415.095-.844.095q-1.556 0-2.829-.846T12 7.49q-.767 1.35-2.04 2.205q-1.273.856-2.81.856q-.429 0-.844-.095q-.415-.096-.825-.223L7.019 18.5q.039.212.221.356q.183.144.394.144M12 19" />
+        </svg>`,
+    K: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="piece-svg">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path fill="currentColor" d="M12 21v-6.856q.223-.563.528-1.084q.305-.52.691-.983q.985-1.165 2.388-1.833t3.047-.667q1.38 0 2.363.973T22 12.923v4.73q0 1.382-.983 2.364T18.654 21zm-6.654 0q-1.38 0-2.363-.983T2 17.654v-4.731q0-1.4.983-2.373t2.363-.973q1.65 0 3.078.702t2.413 1.892q.367.458.656.946T12 14.144V21zm0-1H11.5v-3.288q0-2.558-1.801-4.346t-4.353-1.789q-.979 0-1.662.684Q3 11.944 3 12.923v4.73q0 .98.684 1.663q.683.684 1.662.684m7.154 0h6.154q.979 0 1.662-.684q.684-.683.684-1.662v-4.731q0-.979-.684-1.662q-.683-.684-1.662-.684q-2.552 0-4.353 1.789T12.5 16.712zm-1-12.254v-1.9H9.154q-.213 0-.357-.143q-.143-.144-.143-.357t.143-.357q.144-.143.357-.143H11.5V2.5q0-.213.143-.357T12 2t.357.143t.143.357v2.346h2.346q.213 0 .357.143q.143.144.143.357t-.144.357q-.144.143-.357.143H12.5v1.895q1.071.153 1.825.899q.754.745.925 1.81q-.25.123-.473.264q-.223.14-.437.311q-.017-.961-.695-1.657q-.678-.695-1.645-.695t-1.645.695t-.696 1.657q-.207-.171-.426-.311q-.22-.141-.464-.264q.171-1.065.918-1.805t1.813-.899" />
+        </svg>`
+  };
+
+  // 游戏核心数据
+  const FILES = ['a','b','c','d','e','f','g','h'];
+  let board = [];
+  let currentTurn = 'w';
+  let selectedCell = null;
+  let validMoves = [];
+  let gameMode = 'pvp';
+  let gameOver = false;
+  let moveHistory = [];
+  let castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
+  let enPassantTarget = null;
+  let halfMoveClock = 0;
+  let fullMoveNumber = 1;
+  let pendingPromotion = null;
+  let isAnimating = false;
+
+  // 初始化对局
+  function initGame() {
+    board = [
+      ['bR','bN','bB','bQ','bK','bB','bN','bR'],
+      ['bP','bP','bP','bP','bP','bP','bP','bP'],
+      [null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null],
+      ['wP','wP','wP','wP','wP','wP','wP','wP'],
+      ['wR','wN','wB','wQ','wK','wB','wN','wR']
+    ];
+    currentTurn = 'w';
+    selectedCell = null;
+    validMoves = [];
+    gameOver = false;
+    moveHistory = [];
+    castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
+    enPassantTarget = null;
+    halfMoveClock = 0;
+    fullMoveNumber = 1;
+    pendingPromotion = null;
+    isAnimating = false;
+    
+    document.getElementById('promote-modal').classList.add('hidden');
+    document.getElementById('promote-modal').classList.remove('flex');
+    document.getElementById('game-toast').classList.add('opacity-0');
+    
+    renderBoard();
+    updateStatus();
+    renderNotation();
+  }
+
+  // 全屏提示
+  function showToast(title, subtitle, duration = 1500) {
+    const toast = document.getElementById('game-toast');
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-subtitle').textContent = subtitle || '';
+    toast.classList.remove('opacity-0');
+    
+    if (duration > 0) {
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+      }, duration);
+    }
+  }
+
+  // 渲染棋盘
+  function renderBoard() {
+    const boardEl = document.getElementById('chessboard');
+    boardEl.innerHTML = '';
+    const inCheck = isKingInCheck(currentTurn);
+    const checkmated = isCheckmate(currentTurn);
+    
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const cell = document.createElement('div');
+        const isLight = (row + col) % 2 === 0;
+        
+        cell.className = `chess-cell relative flex items-center justify-center cursor-pointer transition-all duration-300 ease-in-out
+          ${isLight ? 'bg-amber-50 dark:bg-gray-700' : 'bg-primary/60 dark:bg-primary/70'}`;
+        
+        // 选中高亮
+        if (selectedCell && selectedCell[0] === row && selectedCell[1] === col) {
+          cell.classList.add('ring-4', 'ring-yellow-400', 'ring-inset');
+        }
+        const piece = board[row][col];
+        // 将死高亮
+        if (checkmated && piece && piece[0] === currentTurn) {
+          cell.classList.add('bg-red-600/60');
+        } 
+        // 将军高亮
+        else if (inCheck && piece && piece[1] === 'K' && piece[0] === currentTurn) {
+          cell.classList.add('!ring-4', '!ring-red-500', 'ring-inset');
+        }
+        
+        // 可走位置提示
+        const isValidMove = validMoves.some(m => m.row === row && m.col === col);
+        if (isValidMove) {
+          const hint = document.createElement('div');
+          if (board[row][col]) {
+            hint.className = 'absolute inset-2 border-4 border-primary rounded-full opacity-80 transition-all duration-300 ease-in-out z-10';
+          } else {
+            hint.className = 'w-1/4 h-1/4 rounded-full bg-primary/70 transition-all duration-300 ease-in-out z-10';
+          }
+          cell.appendChild(hint);
+        }
+        
+        // 渲染棋子
+        if (piece) {
+          const pieceWrap = document.createElement('div');
+          const isWhite = piece[0] === 'w';
+          pieceWrap.className = `piece-base rounded-full flex items-center justify-center drop-shadow-md
+            ${isWhite ? 'bg-white border-2 border-blue-500 text-black' : 'bg-black border-2 border-primary text-white'}`;
+          pieceWrap.innerHTML = PIECE_SVG[piece[1]];
+          cell.appendChild(pieceWrap);
+        }
+        
+        cell.addEventListener('click', () => handleCellClick(row, col));
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  // 格子点击处理
+  function handleCellClick(row, col) {
+    if (gameOver || isAnimating) return;
+    if (gameMode === 'ai' && currentTurn === 'b') return;
+    if (pendingPromotion) return;
+    
+    const piece = board[row][col];
+    
+    if (piece && piece[0] === currentTurn) {
+      selectedCell = [row, col];
+      validMoves = getValidMoves(row, col);
+      renderBoard();
+      return;
+    }
+    
+    if (selectedCell && validMoves.some(m => m.row === row && m.col === col)) {
+      makeMove(selectedCell[0], selectedCell[1], row, col);
+      return;
+    }
+    
+    selectedCell = null;
+    validMoves = [];
+    renderBoard();
+  }
+
+  // 走子入口
+  function makeMove(fromRow, fromCol, toRow, toCol, promoteTo = 'Q') {
+    const piece = board[fromRow][fromCol];
+    const pieceType = piece[1];
+    const isPromotion = pieceType === 'P' && (toRow === 0 || toRow === 7);
+    if (isPromotion && (gameMode === 'pvp' || (gameMode === 'ai' && piece[0] === 'w'))) {
+      pendingPromotion = { fromRow, fromCol, toRow, toCol };
+      showPromoteModal(piece[0]);
+      return;
+    }
+    executeMove(fromRow, fromCol, toRow, toCol, promoteTo);
+  }
+
+  // 执行走子（含移动+吃子动画）
+  function executeMove(fromRow, fromCol, toRow, toCol, promoteTo = 'Q') {
+    const piece = board[fromRow][fromCol];
+    const captured = board[toRow][toCol];
+    const pieceType = piece[1];
+    const isEnPassant = pieceType === 'P' && enPassantTarget && 
+                        toRow === enPassantTarget[0] && toCol === enPassantTarget[1];
+    // 计算记谱歧义前缀
+    const ambiguous = checkAmbiguity(fromRow, fromCol, toRow, toCol, pieceType);
+    const hasCapture = captured || isEnPassant;
+    isAnimating = true;
+    
+    const boardEl = document.getElementById('chessboard');
+    const fromIndex = fromRow * 8 + fromCol;
+    const toIndex = toRow * 8 + toCol;
+    const fromCell = boardEl.children[fromIndex];
+    const toCell = boardEl.children[toIndex];
+    const pieceEl = fromCell.querySelector('.piece-base');
+    
+    // 被吃棋子消失动画
+    if (hasCapture) {
+      let captureRow = toRow;
+      let captureCol = toCol;
+      if (isEnPassant) {
+        captureRow = piece[0] === 'w' ? toRow + 1 : toRow - 1;
+        captureCol = toCol;
+      }
+      const captureCellIndex = captureRow * 8 + captureCol;
+      const capturePieceEl = boardEl.children[captureCellIndex]?.querySelector('.piece-base');
+      if (capturePieceEl) {
+        capturePieceEl.classList.add('piece-captured');
+      }
+    }
+    
+    // 棋子平移动画
+    if (pieceEl) {
+      const fromRect = fromCell.getBoundingClientRect();
+      const toRect = toCell.getBoundingClientRect();
+      
+      const clone = pieceEl.cloneNode(true);
+      clone.style.position = 'fixed';
+      clone.style.left = `${fromRect.left + fromRect.width * 0.1}px`;
+      clone.style.top = `${fromRect.top + fromRect.height * 0.1}px`;
+      clone.style.width = `${fromRect.width * 0.8}px`;
+      clone.style.height = `${fromRect.height * 0.8}px`;
+      clone.style.margin = '0';
+      clone.style.zIndex = '100';
+      clone.style.pointerEvents = 'none';
+      clone.style.transition = 'transform 0.3s ease-in-out';
+      document.body.appendChild(clone);
+      
+      pieceEl.style.opacity = '0';
+      
+      requestAnimationFrame(() => {
+        const dx = toRect.left - fromRect.left;
+        const dy = toRect.top - fromRect.top;
+        clone.style.transform = `translate(${dx}px, ${dy}px)`;
+      });
+      
+      setTimeout(() => {
+        clone.remove();
+        commitMove(fromRow, fromCol, toRow, toCol, promoteTo, pieceType, captured, isEnPassant, ambiguous);
+        isAnimating = false;
+      }, 300);
+    } else {
+      commitMove(fromRow, fromCol, toRow, toCol, promoteTo, pieceType, captured, isEnPassant, ambiguous);
+      isAnimating = false;
+    }
+  }
+
+  // 提交走子状态
+  function commitMove(fromRow, fromCol, toRow, toCol, promoteTo, pieceType, captured, isEnPassant, ambiguous) {
+    const piece = board[fromRow][fromCol];
+    // 吃过路兵
+    if (isEnPassant) {
+      const captureRow = piece[0] === 'w' ? toRow + 1 : toRow - 1;
+      board[captureRow][toCol] = null;
+    }
+    // 王车易位
+    if (pieceType === 'K' && Math.abs(toCol - fromCol) === 2) {
+      if (toCol > fromCol) {
+        board[toRow][5] = board[toRow][7];
+        board[toRow][7] = null;
+      } else {
+        board[toRow][3] = board[toRow][0];
+        board[toRow][0] = null;
+      }
+    }
+    // 更新易位权限
+    if (pieceType === 'K') {
+      castlingRights[piece[0] + 'K'] = false;
+      castlingRights[piece[0] + 'Q'] = false;
+    }
+    if (pieceType === 'R') {
+      if (fromCol === 0) castlingRights[piece[0] + 'Q'] = false;
+      if (fromCol === 7) castlingRights[piece[0] + 'K'] = false;
+    }
+    // 更新过路兵目标
+    enPassantTarget = null;
+    if (pieceType === 'P' && Math.abs(toRow - fromRow) === 2) {
+      enPassantTarget = [(fromRow + toRow) / 2, fromCol];
+    }
+    // 移动棋子
+    board[toRow][toCol] = piece;
+    board[fromRow][fromCol] = null;
+    // 兵升变
+    const isPromotion = pieceType === 'P' && (toRow === 0 || toRow === 7);
+    if (isPromotion) {
+      board[toRow][toCol] = piece[0] + promoteTo;
+    }
+    // 生成记谱
+    const moveNotation = generateNotation(fromRow, fromCol, toRow, toCol, pieceType, captured, isEnPassant, isPromotion, promoteTo, ambiguous);
+    moveHistory.push({
+      notation: moveNotation,
+      turn: currentTurn,
+      moveNum: fullMoveNumber
+    });
+    // 回合切换
+    if (currentTurn === 'b') fullMoveNumber++;
+    currentTurn = currentTurn === 'w' ? 'b' : 'w';
+    // 半回合计数
+    if (captured || pieceType === 'P' || isEnPassant) halfMoveClock = 0;
+    else halfMoveClock++;
+    selectedCell = null;
+    validMoves = [];
+    checkGameEnd();
+    renderBoard();
+    updateStatus();
+    renderNotation();
+    // 将军提示
+    if (!gameOver && isKingInCheck(currentTurn)) {
+      showToast('CHECK', '将军', 1500);
+    }
+    // AI自动走子
+    if (!gameOver && gameMode === 'ai' && currentTurn === 'b') {
+      setTimeout(aiMove, 600);
+    }
+  }
+
+  // 升变弹窗
+  function showPromoteModal(color) {
+    const modal = document.getElementById('promote-modal');
+    const content = document.getElementById('promote-content');
+    const optionsEl = document.getElementById('promote-options');
+    optionsEl.innerHTML = '';
+    const promotePieces = ['Q', 'R', 'B', 'N'];
+    promotePieces.forEach(type => {
+      const btn = document.createElement('button');
+      btn.className = `w-14 h-14 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ease-in-out hover:bg-primary/10 hover:scale-110 active:scale-95
+        ${color === 'w' ? 'border-blue-500 text-black bg-white' : 'border-primary text-white bg-black'}`;
+      btn.innerHTML = PIECE_SVG[type];
+      btn.addEventListener('click', () => {
+        if (pendingPromotion) {
+          content.classList.add('scale-95', 'opacity-0');
+          setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            content.classList.remove('scale-95', 'opacity-0');
+            executeMove(pendingPromotion.fromRow, pendingPromotion.fromCol, pendingPromotion.toRow, pendingPromotion.toCol, type);
+            pendingPromotion = null;
+          }, 200);
+        }
+      });
+      optionsEl.appendChild(btn);
+    });
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => {
+      content.classList.remove('scale-95', 'opacity-0');
+      content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+  }
+
+  // 标准代数记谱生成
+  function generateNotation(fromRow, fromCol, toRow, toCol, pieceType, captured, isEnPassant, isPromotion, promoteTo, ambiguous) {
+    let notation = '';
+    const target = FILES[toCol] + (8 - toRow);
+    
+    if (pieceType === 'K' && Math.abs(toCol - fromCol) === 2) {
+      return toCol > fromCol ? 'O-O' : 'O-O-O';
+    }
+    
+    if (pieceType !== 'P') notation += pieceType;
+    
+    if (pieceType !== 'P') {
+      if (ambiguous.file) notation += FILES[fromCol];
+      if (ambiguous.rank) notation += (8 - fromRow);
+    }
+    
+    if (captured || isEnPassant) {
+      if (pieceType === 'P') notation += FILES[fromCol];
+      notation += 'x';
+    }
+    
+    notation += target;
+    
+    if (isPromotion) {
+      notation += '=' + promoteTo;
+    }
+    
+    const opponent = currentTurn === 'w' ? 'b' : 'w';
+    if (isKingInCheck(opponent)) {
+      notation += isCheckmate(opponent) ? '#' : '+';
+    }
+    
+    return notation;
+  }
+
+  // 记谱歧义判断
+  function checkAmbiguity(fromRow, fromCol, toRow, toCol, pieceType) {
+    const color = currentTurn;
+    if (pieceType === 'K' || pieceType === 'Q') {
+      return { file: false, rank: false };
+    }
+    const otherCandidates = [];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if (r === fromRow && c === fromCol) continue;
+        const piece = board[r][c];
+        if (!piece || piece[0] !== color || piece[1] !== pieceType) continue;
+        
+        const moves = getPieceMoves(r, c, pieceType, color);
+        if (moves.some(m => m.row === toRow && m.col === toCol)) {
+          otherCandidates.push({ row: r, col: c });
+        }
+      }
+    }
+    if (otherCandidates.length === 0) {
+      return { file: false, rank: false };
+    }
+    const allCandidates = [...otherCandidates, { row: fromRow, col: fromCol }];
+    const allSameFile = allCandidates.every(p => p.col === fromCol);
+    if (!allSameFile) {
+      return { file: true, rank: false };
+    } else {
+      return { file: false, rank: true };
+    }
+  }
+
+  // 攻击范围计算
+  function getAttackSquares(row, col, type, color) {
+    const attacks = [];
+    const direction = color === 'w' ? -1 : 1;
+    switch(type) {
+      case 'P':
+        [-1, 1].forEach(dc => {
+          const nr = row + direction, nc = col + dc;
+          if (isInBoard(nr, nc)) {
+            attacks.push({ row: nr, col: nc });
+          }
+        });
+        break;
+        
+      case 'R':
+        addSlidingMoves(row, col, [[0,1],[0,-1],[1,0],[-1,0]], color, attacks);
+        break;
+        
+      case 'N':
+        [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]].forEach(([dr, dc]) => {
+          const nr = row + dr, nc = col + dc;
+          if (isInBoard(nr, nc)) {
+            attacks.push({ row: nr, col: nc });
+          }
+        });
+        break;
+        
+      case 'B':
+        addSlidingMoves(row, col, [[1,1],[1,-1],[-1,1],[-1,-1]], color, attacks);
+        break;
+        
+      case 'Q':
+        addSlidingMoves(row, col, [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]], color, attacks);
+        break;
+        
+      case 'K':
+        [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr, dc]) => {
+          const nr = row + dr, nc = col + dc;
+          if (isInBoard(nr, nc)) {
+            attacks.push({ row: nr, col: nc });
+          }
+        });
+        break;
+    }
+    return attacks;
+  }
+
+  // 完整走法生成
+  function getPieceMoves(row, col, type, color) {
+    const moves = [];
+    const direction = color === 'w' ? -1 : 1;
+    if (type === 'P') {
+      if (isInBoard(row + direction, col) && !board[row + direction][col]) {
+        moves.push({ row: row + direction, col });
+        const startRow = color === 'w' ? 6 : 1;
+        if (row === startRow && !board[row + 2*direction][col]) {
+          moves.push({ row: row + 2*direction, col });
+        }
+      }
+      [-1, 1].forEach(dc => {
+        const nr = row + direction, nc = col + dc;
+        if (isInBoard(nr, nc)) {
+          const target = board[nr][nc];
+          if (target && target[0] !== color) {
+            moves.push({ row: nr, col: nc });
+          }
+          if (enPassantTarget && nr === enPassantTarget[0] && nc === enPassantTarget[1]) {
+            moves.push({ row: nr, col: nc });
+          }
+        }
+      });
+      return moves;
+    }
+    const attacks = getAttackSquares(row, col, type, color);
+    attacks.forEach(m => {
+      const target = board[m.row][m.col];
+      if (!target || target[0] !== color) {
+        moves.push(m);
+      }
+    });
+    // 王车易位
+    if (type === 'K') {
+      if (!isKingInCheck(color)) {
+        const kSide = color + 'K';
+        const qSide = color + 'Q';
+        const rank = color === 'w' ? 7 : 0;
+        
+        if (castlingRights[kSide] && !board[rank][5] && !board[rank][6] &&
+            !isSquareAttacked(rank, 5, color) && !isSquareAttacked(rank, 6, color)) {
+          moves.push({ row: rank, col: 6 });
+        }
+        if (castlingRights[qSide] && !board[rank][1] && !board[rank][2] && !board[rank][3] &&
+            !isSquareAttacked(rank, 2, color) && !isSquareAttacked(rank, 3, color)) {
+          moves.push({ row: rank, col: 2 });
+        }
+      }
+    }
+    return moves;
+  }
+  function addSlidingMoves(row, col, directions, color, moves) {
+    directions.forEach(([dr, dc]) => {
+      let nr = row + dr, nc = col + dc;
+      while (isInBoard(nr, nc)) {
+        const target = board[nr][nc];
+        if (!target) {
+          moves.push({ row: nr, col: nc });
+        } else {
+          if (target[0] !== color) moves.push({ row: nr, col: nc });
+          break;
+        }
+        nr += dr;
+        nc += dc;
+      }
+    });
+  }
+
+  // 将军/将死判定
+  function getValidMoves(row, col) {
+    const piece = board[row][col];
+    if (!piece) return [];
+    
+    const color = piece[0];
+    const type = piece[1];
+    const pseudoMoves = getPieceMoves(row, col, type, color);
+    
+    return pseudoMoves.filter(move => {
+      return !moveLeavesKingInCheck(row, col, move.row, move.col, color);
+    });
+  }
+  function isKingInCheck(color) {
+    let kingPos = null;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if (board[r][c] === color + 'K') {
+          kingPos = [r, c];
+          break;
+        }
+      }
+      if (kingPos) break;
+    }
+    if (!kingPos) return false;
+    return isSquareAttacked(kingPos[0], kingPos[1], color);
+  }
+  function isSquareAttacked(row, col, defendingColor) {
+    const attackingColor = defendingColor === 'w' ? 'b' : 'w';
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board[r][c];
+        if (p && p[0] === attackingColor) {
+          const attacks = getAttackSquares(r, c, p[1], attackingColor);
+          if (attacks.some(m => m.row === row && m.col === col)) return true;
+        }
+      }
+    }
+    return false;
+  }
+  function moveLeavesKingInCheck(fromRow, fromCol, toRow, toCol, color) {
+    const tempFrom = board[fromRow][fromCol];
+    const tempTo = board[toRow][toCol];
+    
+    let epCaptured = null;
+    let epRow = null;
+    if (tempFrom[1] === 'P' && enPassantTarget && 
+        toRow === enPassantTarget[0] && toCol === enPassantTarget[1]) {
+      epRow = color === 'w' ? toRow + 1 : toRow - 1;
+      epCaptured = board[epRow][toCol];
+      board[epRow][toCol] = null;
+    }
+    
+    board[toRow][toCol] = tempFrom;
+    board[fromRow][fromCol] = null;
+    
+    const inCheck = isKingInCheck(color);
+    
+    board[fromRow][fromCol] = tempFrom;
+    board[toRow][toCol] = tempTo;
+    if (epCaptured) board[epRow][toCol] = epCaptured;
+    
+    return inCheck;
+  }
+  function isCheckmate(color) {
+    if (!isKingInCheck(color)) return false;
+    return !hasAnyLegalMove(color);
+  }
+  function hasAnyLegalMove(color) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board[r][c];
+        if (p && p[0] === color) {
+          const moves = getValidMoves(r, c);
+          if (moves.length > 0) return true;
+        }
+      }
+    }
+    return false;
+  }
+  function checkGameEnd() {
+    const opponent = currentTurn;
+    if (isCheckmate(opponent)) {
+      gameOver = true;
+      const winner = opponent === 'w' ? '黑方' : '白方';
+      document.getElementById('game-status').textContent = `将死！${winner}获胜`;
+      showToast('CHECKMATE', `${winner} 获胜`, 0);
+      return;
+    }
+    if (!hasAnyLegalMove(opponent)) {
+      gameOver = true;
+      document.getElementById('game-status').textContent = '逼和！平局';
+      showToast('STALEMATE', '逼和 平局', 0);
+      return;
+    }
+    if (halfMoveClock >= 100) {
+      gameOver = true;
+      document.getElementById('game-status').textContent = '50回合规则 和棋';
+      showToast('DRAW', '50回合规则 和棋', 0);
+      return;
+    }
+    document.getElementById('game-status').textContent = '';
+  }
+
+  // 简易AI
+  function aiMove() {
+    if (gameOver || isAnimating) return;
+    
+    const allMoves = [];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board[r][c];
+        if (p && p[0] === 'b') {
+          const moves = getValidMoves(r, c);
+          moves.forEach(m => {
+            let score = 0;
+            if (board[m.row][m.col]) {
+              const values = { P:1, N:3, B:3, R:5, Q:9, K:100 };
+              score += values[board[m.row][m.col][1]] * 10;
+            }
+            score += (3.5 - Math.abs(m.row - 3.5)) + (3.5 - Math.abs(m.col - 3.5));
+            score += Math.random() * 2;
+            allMoves.push({ from: [r,c], to: [m.row, m.col], score });
+          });
+        }
+      }
+    }
+    
+    allMoves.sort((a,b) => b.score - a.score);
+    const best = allMoves[0];
+    makeMove(best.from[0], best.from[1], best.to[0], best.to[1]);
+  }
+
+  // UI状态更新
+  function updateStatus() {
+    document.getElementById('turn-text').textContent = currentTurn === 'w' ? '白方' : '黑方';
+  }
+  function renderNotation() {
+    const list = document.getElementById('notation-list');
+    list.innerHTML = '';
+    
+    const rounds = {};
+    moveHistory.forEach(m => {
+      if (!rounds[m.moveNum]) rounds[m.moveNum] = { w: '', b: '' };
+      rounds[m.moveNum][m.turn] = m.notation;
+    });
+    
+    Object.keys(rounds).forEach(num => {
+      const row = document.createElement('div');
+      row.className = 'flex gap-2 border-b border-gray-100 dark:border-gray-700 py-1';
+      row.innerHTML = `
+        <span class="text-gray-400 w-6">${num}.</span>
+        <span class="w-16">${rounds[num].w}</span>
+        <span class="w-16">${rounds[num].b}</span>
+      `;
+      list.appendChild(row);
+    });
+    
+    list.scrollTop = list.scrollHeight;
+  }
+
+  // 工具函数
+  function isInBoard(row, col) {
+    return row >= 0 && row < 8 && col >= 0 && col < 8;
+  }
+
+  // 按钮事件绑定
+  document.getElementById('btn-pvp').addEventListener('click', () => {
+    gameMode = 'pvp';
+    document.getElementById('mode-text').textContent = '双人对战';
+    document.getElementById('btn-pvp').className = 'px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/80 transition-all duration-300 ease-in-out active:scale-95';
+    document.getElementById('btn-ai').className = 'px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 ease-in-out active:scale-95';
+    initGame();
+  });
+  document.getElementById('btn-ai').addEventListener('click', () => {
+    gameMode = 'ai';
+    document.getElementById('mode-text').textContent = '人机对战';
+    document.getElementById('btn-ai').className = 'px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/80 transition-all duration-300 ease-in-out active:scale-95';
+    document.getElementById('btn-pvp').className = 'px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 ease-in-out active:scale-95';
+    initGame();
+  });
+  document.getElementById('btn-reset').addEventListener('click', initGame);
+
+  // 启动游戏
+  initGame();
+</script>
+</body>
+</html>
